@@ -137,6 +137,38 @@ public final class TradePoolCache {
         return offers;
     }
 
+    public static boolean matchesGeneratedOfferShape(MerchantOffer offer) {
+        ensureBuilt();
+        return matchesGeneratedOfferShapeFromBuiltPools(offer);
+    }
+
+    private static synchronized boolean matchesGeneratedOfferShapeFromBuiltPools(MerchantOffer offer) {
+        ItemStack result = offer.getResult();
+        if (result.isEmpty()
+                || offer.getItemCostB().isPresent()
+                || !offer.getItemCostA().itemStack().is(Items.EMERALD)
+                || offer.getXp() != VILLAGER_XP
+                || Float.compare(offer.getPriceMultiplier(), PRICE_MULTIPLIER) != 0) {
+            return false;
+        }
+
+        for (TradeCategory category : TradeCategory.values()) {
+            if (offer.getItemCostA().count() != CommonTradesConfig.emeraldCost(category)
+                    || offer.getMaxUses() != category.maxUses()
+                    || result.getCount() < category.minOutputCount()
+                    || result.getCount() > category.maxOutputCount()) {
+                continue;
+            }
+
+            for (TradeEntry entry : entriesByCategory.getOrDefault(category, List.of())) {
+                if (entry.item() == result.getItem()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     static Optional<SelectedTrade> createOffer(RandomSource random, Set<Item> usedItems, FeatureFlagSet enabledFeatures) {
         if (!CommonTradesConfig.enabled() || !hasEntries()) {
             return Optional.empty();

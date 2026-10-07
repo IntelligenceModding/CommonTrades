@@ -9,4 +9,10 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 public interface AbstractContainerScreenAccessor {
     @Accessor("menu")
     AbstractContainerMenu commontrades$getMenu();
+
+    @Accessor("leftPos")
+    int commontrades$getLeftPos();
+
+    @Accessor("topPos")
+    int commontrades$getTopPos();
 }

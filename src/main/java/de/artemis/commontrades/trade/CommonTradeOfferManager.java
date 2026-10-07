@@ -51,11 +51,15 @@ public final class CommonTradeOfferManager {
         return OWNED_OFFERS.contains(offer);
     }
 
+    public static boolean ownsOrMatchesGeneratedOffer(MerchantOffer offer) {
+        return owns(offer) || TradePoolCache.matchesGeneratedOfferShape(offer);
+    }
+
     public static int[] ownedOfferIndexes(MerchantOffers offers) {
         int[] indexes = new int[offers.size()];
         int count = 0;
         for (int index = 0; index < offers.size(); index++) {
-            if (owns(offers.get(index))) {
+            if (ownsOrMatchesGeneratedOffer(offers.get(index))) {
                 indexes[count] = index;
                 count++;
             }
@@ -78,7 +82,7 @@ public final class CommonTradeOfferManager {
     private static int countOwnedOffers(MerchantOffers offers) {
         int count = 0;
         for (MerchantOffer offer : offers) {
-            if (owns(offer)) {
+            if (ownsOrMatchesGeneratedOffer(offer)) {
                 count++;
             }
         }
