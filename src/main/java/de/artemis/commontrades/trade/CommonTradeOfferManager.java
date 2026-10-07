@@ -2,6 +2,7 @@ package de.artemis.commontrades.trade;
 
 import de.artemis.commontrades.CommonTrades;
 import de.artemis.commontrades.config.CommonTradesConfig;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -48,6 +49,18 @@ public final class CommonTradeOfferManager {
 
     public static boolean owns(MerchantOffer offer) {
         return OWNED_OFFERS.contains(offer);
+    }
+
+    public static int[] ownedOfferIndexes(MerchantOffers offers) {
+        int[] indexes = new int[offers.size()];
+        int count = 0;
+        for (int index = 0; index < offers.size(); index++) {
+            if (owns(offers.get(index))) {
+                indexes[count] = index;
+                count++;
+            }
+        }
+        return Arrays.copyOf(indexes, count);
     }
 
     static int removeOwnedCollisions(MerchantOffers offers) {

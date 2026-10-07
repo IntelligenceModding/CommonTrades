@@ -35,5 +35,15 @@
   "commontrades.configuration.blacklists.modBlacklist.button": "Edit",
   "commontrades.configuration.blacklists.tagBlacklist": "Tag Blacklist",
   "commontrades.configuration.blacklists.tagBlacklist.tooltip": "Item tag ids whose contents Common Trades must never offer. A leading # is optional.",
-  "commontrades.configuration.blacklists.tagBlacklist.button": "Edit"
+  "commontrades.configuration.blacklists.tagBlacklist.button": "Edit",
+  "commontrades.configuration.visualMarkers": "Visual Markers",
+  "commontrades.configuration.visualMarkers.tooltip": "Client-side Wandering Trader marker appearance.",
+  "commontrades.configuration.visualMarkers.button": "Edit",
+  "commontrades.configuration.visualMarkers.visualIndicators": "Visual Indicators",
+  "commontrades.configuration.visualMarkers.visualIndicators.tooltip": "Show Common Trades trade outlines and the added-by tooltip line.",
+  "commontrades.configuration.visualMarkers.outlineOpacity": "Outline Opacity",
+  "commontrades.configuration.visualMarkers.outlineOpacity.tooltip": "Opacity percentage for the Common Trades trade outline.",
+  "commontrades.configuration.visualMarkers.outlineColor": "Outline Color",
+  "commontrades.configuration.visualMarkers.outlineColor.tooltip": "RGB hex color for the Common Trades trade outline, such as #00D26A.",
+  "commontrades.tooltip.added_by_common_trades": "Added by Common Trades"
 }

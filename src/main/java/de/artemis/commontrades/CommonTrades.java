@@ -3,6 +3,7 @@ package de.artemis.commontrades;
 import com.mojang.logging.LogUtils;
 import de.artemis.commontrades.command.CommonTradesCommands;
 import de.artemis.commontrades.config.CommonTradesConfig;
+import de.artemis.commontrades.network.CommonTradesNetwork;
 import de.artemis.commontrades.trade.TradePoolCache;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
@@ -19,6 +20,7 @@ public final class CommonTrades {
 
     public CommonTrades(IEventBus modEventBus, ModContainer modContainer) {
         modContainer.registerConfig(ModConfig.Type.SERVER, CommonTradesConfig.SPEC);
+        modEventBus.addListener(CommonTradesNetwork::registerPayloads);
         modEventBus.addListener(TradePoolCache::onConfigLoading);
         modEventBus.addListener(TradePoolCache::onConfigReloading);
 

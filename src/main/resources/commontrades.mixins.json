@@ -4,7 +4,15 @@
   "package": "de.artemis.commontrades.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "ServerPlayerMixin",
     "WanderingTraderMixin"
+  ],
+  "client": [
+    "client.AbstractContainerScreenAccessor",
+    "client.ClientPacketListenerMixin",
+    "client.MerchantScreenAccessor",
+    "client.MerchantScreenMixin",
+    "client.MerchantTradeOfferButtonMixin"
   ],
   "injectors": {
     "defaultRequire": 1

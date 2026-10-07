@@ -1,65 +1,140 @@
-# Common Trades
+<p align="center">
+  <img src="https://raw.githubusercontent.com/IntelligenceModding/CommonTrades/refs/heads/assets/Project%20Title.png" alt="Common Trades" width="900">
+</p>
 
-Automatically adds suitable modded items to Wandering Trader trades for seamless modpack integration.
+<p align="center">
+  Common Trades automatically adds suitable modded vegetation and crop-starter items to Wandering Trader trades for seamless modpack integration.
+</p>
 
-Common Trades is a lightweight NeoForge modpack utility for Minecraft 1.21.1. It discovers eligible modded vegetation and crop-starter items through item tags, then makes a limited number of those items possible Wandering Trader sell offers.
+<p align="center">
+  Install biome, farming, or world-generation mods, and Common Trades can discover their tagged saplings, flowers, mushrooms, seeds, and small plants without hardcoded compatibility patches.
+</p>
 
-The mod:
+<br>
 
-- Automatically discovers supported modded items from installed mods
-- Uses tags rather than hardcoded compatibility patches
-- Preserves vanilla Wandering Trader trades
-- Appends to the existing trade pool for better modpack compatibility
-- Supports server configuration and item, mod, and tag blacklists
-- Adds no blocks, items, mobs, textures, models, custom GUIs, or progression systems
+<p align="center">
+  <img src="https://raw.githubusercontent.com/IntelligenceModding/CommonTrades/refs/heads/assets/Compatibility.png" alt="Compatibility" height="75">
+</p>
 
-## Examples
+<p align="center">
+  <img src="https://img.shields.io/badge/Minecraft-1.21.1-3C8527?style=for-the-badge&logo=minecraft&logoColor=white" alt="Minecraft 1.21.1">
+  &nbsp;&nbsp;&nbsp;
+  <img src="https://img.shields.io/badge/Loader-NeoForge-6C47FF?style=for-the-badge" alt="NeoForge">
+</p>
 
-Install a biome mod that adds 20 new tagged saplings. Common Trades automatically makes those saplings eligible to appear in Wandering Trader offers.
+<p align="center">
+  <strong>Common Trades is server-authoritative.</strong>
+</p>
 
-Install several biome or farming mods. Their tagged flowers, mushrooms, seeds, saplings, and supported small plants can enter Common Trades' cached trade pools, while each trader still receives only a small configured number of Common Trades offers.
+<p align="center">
+  Server config controls generated trades, prices, categories, and blacklists. Client settings only affect local Wandering Trader GUI markers when the client receives Common Trades offer indexes from the server.
+</p>
 
-## Datapack Tags
+<br>
 
-Pack developers can supplement automatic discovery with item tags:
+<p align="center">
+  <img src="https://raw.githubusercontent.com/IntelligenceModding/CommonTrades/refs/heads/assets/Features.png" alt="Features" height="75">
+</p>
 
-- `commontrades:wandering_trader/saplings`
-- `commontrades:wandering_trader/flowers`
-- `commontrades:wandering_trader/seeds`
-- `commontrades:wandering_trader/mushrooms`
-- `commontrades:wandering_trader/small_plants`
-- `commontrades:wandering_trader/blacklist`
+<p align="center">
+  Common Trades currently includes the following features:
+</p>
 
-The blacklist tag removes items from all Common Trades categories.
+<p align="center">
+  &bull; Automatic Wandering Trader offer generation for eligible modded vegetation and crop-starter items<br>
+  &bull; Tag-based discovery using vanilla, common <code>c</code>, and Common Trades item tags<br>
+  &bull; Supported categories for saplings, flowers, mushrooms, seeds, and small plants<br>
+  &bull; Deterministic category priority when an item appears in multiple supported tags<br>
+  &bull; Configurable target count of Common Trades offers per Wandering Trader<br>
+  &bull; Configurable emerald prices and per-category enable switches<br>
+  &bull; Item, mod namespace, and tag blacklists for pack-level control<br>
+  &bull; Built-in datapack blacklist tag at <code>commontrades:wandering_trader/blacklist</code><br>
+  &bull; Vanilla Wandering Trader trades are preserved, with Common Trades offers added to the existing pool<br>
+  &bull; Duplicate item filtering so generated offers avoid items already selected by the trader<br>
+  &bull; Optional client-side trade-row outlines and <code>Added by Common Trades</code> tooltip text<br>
+  &bull; Debug command for reviewing discovered Wandering Trader trade pools<br>
+  &bull; No blocks, items, mobs, textures, models, custom progression systems, or permanent item metadata
+</p>
 
-If an item appears in multiple supported tags, Common Trades creates only one candidate. Category priority is deterministic: saplings, flowers, mushrooms, seeds, then small plants.
+<p align="center">
+  Common Trades is designed for modpacks that want modded plant and crop items to appear naturally in Wandering Trader offers while keeping behavior predictable and configurable.
+</p>
 
-## Configuration
+<br>
 
-Common Trades uses a NeoForge server config. It supports:
+<p align="center">
+  <img src="https://raw.githubusercontent.com/IntelligenceModding/CommonTrades/refs/heads/assets/Resources.png" alt="Resources" height="75">
+</p>
 
-- Enabling or disabling the mod
-- Configuring the target number of Common Trades offers per Wandering Trader
-- Enabling or disabling each category
-- Configuring the emerald price for each category
-- Blacklisting specific items, mod namespaces, or item tags
+<p align="center">
+  Configuration, datapack tags, bug reports, feature requests, version support requests, and contributions are documented in this repository.
+</p>
 
-The config is server-authoritative. On a dedicated server, only the server's config controls generated trades. A remote player cannot change server prices from their local Mods menu. In single-player, the Mods menu config button uses NeoForge's built-in config screen for the loaded world's server config.
+<p align="center">
+  <a href="CONFIG.md"><img src="https://img.shields.io/badge/GitHub-Config%20Reference-181717?style=for-the-badge&logo=github&logoColor=white" alt="Config Reference"></a>
+  &nbsp;&nbsp;&nbsp;
+  <a href="DATAPACKS.md"><img src="https://img.shields.io/badge/GitHub-Datapack%20Reference-181717?style=for-the-badge&logo=github&logoColor=white" alt="Datapack Reference"></a>
+</p>
 
-## Development
+<p align="center">
+  <a href="CONTRIBUTING.md"><img src="https://img.shields.io/badge/GitHub-Contributing%20Guidelines-181717?style=for-the-badge&logo=github&logoColor=white" alt="Contribution Guidelines"></a>
+  &nbsp;&nbsp;&nbsp;
+  <a href="https://github.com/IntelligenceModding/CommonTrades/issues/new/choose"><img src="https://img.shields.io/badge/GitHub-Issues-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub Issues"></a>
+</p>
 
-Build the mod:
+<p align="center">
+  <a href="SUPPORT.md"><img src="https://img.shields.io/badge/GitHub-Support-181717?style=for-the-badge&logo=github&logoColor=white" alt="Support"></a>
+  &nbsp;&nbsp;&nbsp;
+  <a href="CODE_OF_CONDUCT.md"><img src="https://img.shields.io/badge/GitHub-Code%20of%20Conduct-181717?style=for-the-badge&logo=github&logoColor=white" alt="Code of Conduct"></a>
+</p>
 
-```bash
-./gradlew build
-```
+<br>
 
-Run the development client:
+<p align="center">
+  <img src="https://raw.githubusercontent.com/IntelligenceModding/CommonTrades/refs/heads/assets/Community.png" alt="Community" height="75">
+</p>
 
-```bash
-./gradlew runClient
-```
+<p align="center">
+  Common Trades is developed as part of the <strong>Intelligence Modding Team</strong>.
+</p>
 
-On Windows, use `gradlew.bat` instead of `./gradlew`.
+<p align="center">
+  Follow the project, browse the source, or join the community for updates, previews, and modding help.
+</p>
 
-Common Trades is developed as part of the Intelligence Modding Team and released under the MIT License.
+<p align="center">
+  <a href="https://discord.intelligence-modding.de/"><img src="https://img.shields.io/badge/Discord-Join%20Community-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Join the Intelligence Modding Discord"></a>
+  &nbsp;&nbsp;&nbsp;
+  <a href="https://www.youtube.com/@intelligencemodding4093"><img src="https://img.shields.io/badge/YouTube-Intelligence%20Modding-FF0000?style=for-the-badge&logo=youtube&logoColor=white" alt="Intelligence Modding on YouTube"></a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/DoomedArtemis"><img src="https://img.shields.io/badge/GitHub-DoomedArtemis-181717?style=for-the-badge&logo=github&logoColor=white" alt="DoomedArtemis on GitHub"></a>
+  &nbsp;&nbsp;&nbsp;
+  <a href="https://github.com/IntelligenceModding"><img src="https://img.shields.io/badge/GitHub-IntelligenceModding-181717?style=for-the-badge&logo=github&logoColor=white" alt="Intelligence Modding on GitHub"></a>
+</p>
+
+<br>
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/IntelligenceModding/CommonTrades/refs/heads/assets/Acknowledgments.png" alt="Acknowledgments" height="75">
+</p>
+
+<p align="center">
+  Special thanks and credits:
+</p>
+
+<p align="center">
+  &bull; The NeoForged team for NeoForge and its documentation<br>
+  &bull; The Minecraft modding community for examples, tools, and support<br>
+  &bull; The Intelligence Modding community for feedback, testing, and ideas<br>
+  &bull; Everyone who reports issues, suggests improvements, or uses Common Trades in their worlds, servers, or modpacks
+</p>
+
+<p align="center">
+  Common Trades is released under the MIT License.
+</p>
+
+<p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-830F26?style=for-the-badge&labelColor=A4011A&logo=bookstack&logoColor=white" alt="MIT License"></a>
+</p>

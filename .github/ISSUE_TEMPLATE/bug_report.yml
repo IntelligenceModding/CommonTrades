@@ -16,6 +16,7 @@ body:
     id: minecraft-version
     attributes:
       label: Minecraft Version
+      description: Which Minecraft version are you using?
       placeholder: "Example: 1.21.1"
     validations:
       required: true
@@ -24,7 +25,8 @@ body:
     id: mod-version
     attributes:
       label: Common Trades Version
-      placeholder: "Example: 0.1.0"
+      description: Which version of Common Trades are you using?
+      placeholder: "Example: 1.0.0"
     validations:
       required: true
 
@@ -32,7 +34,31 @@ body:
     id: loader
     attributes:
       label: Mod Loader
+      description: Which mod loader and version are you using?
       placeholder: "Example: NeoForge 21.1.226"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: issue-area
+    attributes:
+      label: Affected Feature
+      description: Which part of Common Trades is affected?
+      options:
+        - Wandering Trader Offer Generation
+        - Trade Discovery / Tags
+        - Datapacks
+        - Server Config
+        - Client Config
+        - Blacklists
+        - Generated Offer Prices / Counts
+        - Duplicate Trade Filtering
+        - Visual Markers / Tooltips
+        - Client-Server Sync
+        - Debug Command
+        - Compatibility
+        - Other
+        - Not sure
     validations:
       required: true
 
@@ -40,6 +66,7 @@ body:
     id: description
     attributes:
       label: What happened?
+      description: Describe the problem clearly.
       placeholder: Explain what went wrong.
     validations:
       required: true
@@ -48,6 +75,7 @@ body:
     id: expected
     attributes:
       label: Expected Behavior
+      description: What did you expect to happen instead?
       placeholder: Explain what you expected.
     validations:
       required: true
@@ -56,10 +84,38 @@ body:
     id: reproduction
     attributes:
       label: Steps to Reproduce
+      description: Provide clear steps that can be used to reproduce the issue.
       placeholder: |
         1. Launch the game with ...
-        2. ...
-        3. The issue occurs.
+        2. Load a world or server with ...
+        3. Spawn or find a Wandering Trader ...
+        4. The issue occurs.
+    validations:
+      required: true
+
+  - type: textarea
+    id: configuration
+    attributes:
+      label: Relevant Common Trades Configuration or Datapack Data
+      description: If the problem involves a config value, item tag, blacklist, generated offer, or datapack, describe it here.
+      placeholder: |
+        Example:
+        - Server config: extraTradesPerTrader = 2
+        - Category: saplings
+        - Item: examplemod:blue_sapling
+        - Tag: commontrades:wandering_trader/saplings
+        - Blacklist entry: examplemod:rare_seed
+
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Where Does the Issue Occur?
+      description: Does the problem happen in singleplayer, on a dedicated server, or both?
+      options:
+        - Singleplayer only
+        - Dedicated server only
+        - Both singleplayer and dedicated server
+        - Not sure
     validations:
       required: true
 
@@ -67,21 +123,24 @@ body:
     id: other-mods
     attributes:
       label: Other Installed Mods
+      description: List other mods that may be relevant. If the issue may be compatibility-related, provide the full mod list if possible.
       placeholder: |
         Example:
         - JEI 19.22.0.315
-        - Example Mod 1.2.3
+        - Example Biomes 1.2.3
 
   - type: textarea
     id: logs
     attributes:
       label: Logs / Crash Report
+      description: Attach or paste relevant logs or crash reports. Use a file attachment or code block for long logs.
       render: shell
 
   - type: textarea
     id: additional
     attributes:
       label: Additional Information
+      description: Add screenshots, videos, server information, config files, datapack snippets, trade lists, or anything else that may help.
 
   - type: checkboxes
     id: checks

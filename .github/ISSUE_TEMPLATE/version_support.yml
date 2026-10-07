@@ -34,6 +34,7 @@ body:
     id: reason
     attributes:
       label: Why are you requesting this version?
+      description: Explain why support for this Minecraft version or loader would be useful.
       placeholder: Explain why you would like this version to be supported.
     validations:
       required: true
@@ -42,6 +43,7 @@ body:
     id: additional
     attributes:
       label: Additional Information
+      description: Add anything else that may be relevant.
 
   - type: checkboxes
     id: checks
