@@ -2,7 +2,7 @@ package de.artemis.commontrades.trade;
 
 import de.artemis.commontrades.CommonTrades;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 
@@ -21,6 +21,6 @@ public final class CommonTradeTags {
     }
 
     private static TagKey<Item> itemTag(String namespace, String path) {
-        return TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(namespace, path));
+        return TagKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(namespace, path));
     }
 }

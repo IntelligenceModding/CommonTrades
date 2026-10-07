@@ -13,7 +13,7 @@ import java.util.Set;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.flag.FeatureFlagSet;
@@ -60,18 +60,18 @@ public final class TradePoolCache {
 
     public static synchronized void rebuild() {
         Map<TradeCategory, List<TradeEntry>> rebuilt = new EnumMap<>(TradeCategory.class);
-        Set<ResourceLocation> itemBlacklist = CommonTradesConfig.itemBlacklist();
+        Set<Identifier> itemBlacklist = CommonTradesConfig.itemBlacklist();
         Set<String> modBlacklist = CommonTradesConfig.modBlacklist();
         List<TagKey<Item>> tagBlacklist = CommonTradesConfig.tagBlacklist();
         Set<Item> registeredWanderingTradeItems = RegisteredWanderingTradeInspector.registeredResultItems();
 
-        Map<ResourceLocation, TradeEntry> discovered = new LinkedHashMap<>();
+        Map<Identifier, TradeEntry> discovered = new LinkedHashMap<>();
         for (TradeCategory category : TradeCategory.values()) {
             if (CommonTradesConfig.enabled() && CommonTradesConfig.isCategoryEnabled(category)) {
                 for (TagKey<Item> sourceTag : category.sourceTags()) {
                     for (Holder<Item> holder : BuiltInRegistries.ITEM.getTagOrEmpty(sourceTag)) {
                         Item item = holder.value();
-                        ResourceLocation id = BuiltInRegistries.ITEM.getKey(item);
+                        Identifier id = BuiltInRegistries.ITEM.getKey(item);
                         if (isEligible(holder, item, id, itemBlacklist, modBlacklist, tagBlacklist, registeredWanderingTradeItems)) {
                             discovered.putIfAbsent(id, new TradeEntry(category, item, id));
                         }
@@ -221,8 +221,8 @@ public final class TradePoolCache {
     private static boolean isEligible(
             Holder<Item> holder,
             Item item,
-            ResourceLocation id,
-            Set<ResourceLocation> itemBlacklist,
+            Identifier id,
+            Set<Identifier> itemBlacklist,
             Set<String> modBlacklist,
             List<TagKey<Item>> tagBlacklist,
             Set<Item> registeredWanderingTradeItems) {

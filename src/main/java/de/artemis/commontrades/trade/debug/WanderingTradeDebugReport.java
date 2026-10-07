@@ -15,8 +15,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.npc.VillagerTrades;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.npc.villager.VillagerTrades;
 import net.neoforged.fml.ModList;
 
 public final class WanderingTradeDebugReport {
@@ -152,7 +152,7 @@ public final class WanderingTradeDebugReport {
                 vanilla.add(trade);
             } else {
                 String modId = trade.resultId()
-                        .map(ResourceLocation::getNamespace)
+                        .map(Identifier::getNamespace)
                         .orElse(UNKNOWN_MOD_ID);
                 if (CommonTrades.MOD_ID.equals(modId)) {
                     modId = UNKNOWN_MOD_ID;
@@ -325,7 +325,7 @@ public final class WanderingTradeDebugReport {
 
     private record DebugTrade(
             String label,
-            Optional<ResourceLocation> resultId,
+            Optional<Identifier> resultId,
             String amount,
             String emeraldCost,
             String maxUses,
@@ -370,7 +370,7 @@ public final class WanderingTradeDebugReport {
                     filterId,
                     title,
                     trades.stream()
-                            .sorted(Comparator.comparing(trade -> trade.resultId().map(ResourceLocation::toString).orElse("~" + trade.note())))
+                            .sorted(Comparator.comparing(trade -> trade.resultId().map(Identifier::toString).orElse("~" + trade.note())))
                             .toList());
         }
     }

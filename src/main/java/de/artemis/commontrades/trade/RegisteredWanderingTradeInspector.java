@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.npc.VillagerTrades;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.npc.villager.VillagerTrades;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -32,18 +32,18 @@ public final class RegisteredWanderingTradeInspector {
     public static Optional<InspectedOffer> inspectKnownListing(VillagerTrades.ItemListing listing) {
         String className = listing.getClass().getName();
         try {
-            if (className.equals("net.minecraft.world.entity.npc.VillagerTrades$ItemsForEmeralds")) {
+            if (className.equals("net.minecraft.world.entity.npc.villager.VillagerTrades$ItemsForEmeralds")) {
                 ItemStack result = copyStack(field(listing, "itemStack", ItemStack.class));
                 return knownOffer(result, field(listing, "emeraldCost", Integer.class), field(listing, "maxUses", Integer.class), "");
             }
-            if (className.equals("net.minecraft.world.entity.npc.VillagerTrades$ItemsAndEmeraldsToItems")) {
+            if (className.equals("net.minecraft.world.entity.npc.villager.VillagerTrades$ItemsAndEmeraldsToItems")) {
                 ItemStack result = copyStack(field(listing, "toItem", ItemStack.class));
                 return knownOffer(result, field(listing, "emeraldCost", Integer.class), field(listing, "maxUses", Integer.class), "");
             }
-            if (className.equals("net.minecraft.world.entity.npc.VillagerTrades$SuspiciousStewForEmerald")) {
+            if (className.equals("net.minecraft.world.entity.npc.villager.VillagerTrades$SuspiciousStewForEmerald")) {
                 return knownOffer(new ItemStack(Items.SUSPICIOUS_STEW), 1, 12, "");
             }
-            if (className.equals("net.minecraft.world.entity.npc.VillagerTrades$TippedArrowForItemsAndEmeralds")) {
+            if (className.equals("net.minecraft.world.entity.npc.villager.VillagerTrades$TippedArrowForItemsAndEmeralds")) {
                 ItemStack result = copyStack(field(listing, "toItem", ItemStack.class));
                 result.setCount(field(listing, "toCount", Integer.class));
                 return knownOffer(result, field(listing, "emeraldCost", Integer.class), field(listing, "maxUses", Integer.class), "dynamic potion");
@@ -97,7 +97,7 @@ public final class RegisteredWanderingTradeInspector {
         if (result.isEmpty()) {
             return Optional.empty();
         }
-        ResourceLocation resultId = BuiltInRegistries.ITEM.getKey(result.getItem());
+        Identifier resultId = BuiltInRegistries.ITEM.getKey(result.getItem());
         if (resultId == null) {
             return Optional.empty();
         }
@@ -142,6 +142,6 @@ public final class RegisteredWanderingTradeInspector {
         throw new NoSuchFieldException(name);
     }
 
-    public record InspectedOffer(ResourceLocation resultId, Item item, int amount, int emeraldCost, int maxUses, String note) {
+    public record InspectedOffer(Identifier resultId, Item item, int amount, int emeraldCost, int maxUses, String note) {
     }
 }

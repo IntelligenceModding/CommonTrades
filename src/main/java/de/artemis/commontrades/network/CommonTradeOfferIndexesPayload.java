@@ -4,11 +4,11 @@ import de.artemis.commontrades.CommonTrades;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public record CommonTradeOfferIndexesPayload(int containerId, int[] offerIndexes) implements CustomPacketPayload {
     public static final Type<CommonTradeOfferIndexesPayload> TYPE = new Type<>(
-            ResourceLocation.fromNamespaceAndPath(CommonTrades.MOD_ID, "common_trade_offer_indexes"));
+            Identifier.fromNamespaceAndPath(CommonTrades.MOD_ID, "common_trade_offer_indexes"));
     public static final StreamCodec<RegistryFriendlyByteBuf, CommonTradeOfferIndexesPayload> STREAM_CODEC =
             CustomPacketPayload.codec(CommonTradeOfferIndexesPayload::write, CommonTradeOfferIndexesPayload::new);
 

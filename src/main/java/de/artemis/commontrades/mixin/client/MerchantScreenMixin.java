@@ -53,6 +53,6 @@ abstract class MerchantScreenMixin {
     }
 
     private static void renderOutline(GuiGraphics guiGraphics, int x, int y, int color) {
-        guiGraphics.submitOutline(x + 1, y + 1, TRADE_BUTTON_WIDTH - 2, TRADE_BUTTON_HEIGHT - 2, color);
+        guiGraphics.renderOutline(x + 1, y + 1, TRADE_BUTTON_WIDTH - 2, TRADE_BUTTON_HEIGHT - 2, color);
     }
 }

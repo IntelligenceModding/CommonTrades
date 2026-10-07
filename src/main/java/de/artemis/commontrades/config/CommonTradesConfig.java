@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.common.ModConfigSpec;
@@ -119,10 +119,10 @@ public final class CommonTradesConfig {
         };
     }
 
-    public static Set<ResourceLocation> itemBlacklist() {
-        Set<ResourceLocation> blacklist = new HashSet<>();
+    public static Set<Identifier> itemBlacklist() {
+        Set<Identifier> blacklist = new HashSet<>();
         for (String entry : get(INSTANCE.itemBlacklist)) {
-            ResourceLocation id = ResourceLocation.tryParse(entry);
+            Identifier id = Identifier.tryParse(entry);
             if (id == null) {
                 CommonTrades.LOGGER.warn("Ignoring malformed Common Trades item blacklist entry '{}'", entry);
                 continue;
@@ -136,7 +136,7 @@ public final class CommonTradesConfig {
         Set<String> blacklist = new HashSet<>();
         for (String entry : get(INSTANCE.modBlacklist)) {
             String modId = entry.toLowerCase(Locale.ROOT);
-            if (!ResourceLocation.isValidNamespace(modId)) {
+            if (!Identifier.isValidNamespace(modId)) {
                 CommonTrades.LOGGER.warn("Ignoring malformed Common Trades mod blacklist entry '{}'", entry);
                 continue;
             }
@@ -149,7 +149,7 @@ public final class CommonTradesConfig {
         List<TagKey<Item>> blacklist = new ArrayList<>();
         for (String entry : get(INSTANCE.tagBlacklist)) {
             String idText = entry.startsWith("#") ? entry.substring(1) : entry;
-            ResourceLocation id = ResourceLocation.tryParse(idText);
+            Identifier id = Identifier.tryParse(idText);
             if (id == null) {
                 CommonTrades.LOGGER.warn("Ignoring malformed Common Trades tag blacklist entry '{}'", entry);
                 continue;

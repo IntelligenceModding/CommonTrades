@@ -12,8 +12,6 @@ import net.minecraft.network.chat.Component;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 
 public final class CommonTradesCommands {
-    private static final int REQUIRED_PERMISSION_LEVEL = 2;
-
     private CommonTradesCommands() {
     }
 
@@ -23,7 +21,7 @@ public final class CommonTradesCommands {
 
     private static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("commontrades")
-                .requires(source -> source.hasPermission(REQUIRED_PERMISSION_LEVEL))
+                .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                 .then(Commands.literal("trades")
                         .executes(context -> showTrades(context, null, 1))
                         .then(Commands.argument("page", IntegerArgumentType.integer(1))
