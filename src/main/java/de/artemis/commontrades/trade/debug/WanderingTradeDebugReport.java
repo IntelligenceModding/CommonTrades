@@ -15,7 +15,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.npc.VillagerTrades;
 import net.neoforged.fml.ModList;
@@ -37,8 +36,8 @@ public final class WanderingTradeDebugReport {
         this.resultCounts = resultCounts;
     }
 
-    public static WanderingTradeDebugReport create(RegistryAccess registryAccess) {
-        TradePoolCache.ensureBuilt(registryAccess);
+    public static WanderingTradeDebugReport create() {
+        TradePoolCache.ensureBuilt();
 
         Set<VillagerTrades.ItemListing> vanillaListings = vanillaListings();
         Map<String, TradeGroupBuilder> otherModGroups = new HashMap<>();
@@ -65,8 +64,8 @@ public final class WanderingTradeDebugReport {
         return new WanderingTradeDebugReport(groups, resultCounts);
     }
 
-    public static Iterable<String> suggestedFilters(RegistryAccess registryAccess) {
-        WanderingTradeDebugReport report = create(registryAccess);
+    public static Iterable<String> suggestedFilters() {
+        WanderingTradeDebugReport report = create();
         Set<String> filters = new TreeSet<>();
         filters.add(VANILLA_FILTER);
         filters.add(COMMON_TRADES_FILTER);

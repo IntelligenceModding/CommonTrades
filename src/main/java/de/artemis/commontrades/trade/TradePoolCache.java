@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import net.minecraft.core.Holder;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -40,7 +39,7 @@ public final class TradePoolCache {
 
     public static void onTagsUpdated(TagsUpdatedEvent event) {
         if (event.getUpdateCause() == TagsUpdatedEvent.UpdateCause.SERVER_DATA_LOAD) {
-            rebuild(event.getRegistryAccess());
+            rebuild();
         }
     }
 
@@ -54,11 +53,11 @@ public final class TradePoolCache {
 
     private static void onConfigChanged(ModConfigEvent event) {
         if (CommonTrades.MOD_ID.equals(event.getConfig().getModId()) && event.getConfig().getType() == ModConfig.Type.SERVER && built) {
-            rebuild(RegistryAccess.EMPTY);
+            rebuild();
         }
     }
 
-    public static synchronized void rebuild(RegistryAccess registryAccess) {
+    public static synchronized void rebuild() {
         Map<TradeCategory, List<TradeEntry>> rebuilt = new EnumMap<>(TradeCategory.class);
         Set<ResourceLocation> itemBlacklist = CommonTradesConfig.itemBlacklist();
         Set<String> modBlacklist = CommonTradesConfig.modBlacklist();
@@ -99,9 +98,9 @@ public final class TradePoolCache {
         }
     }
 
-    public static synchronized void ensureBuilt(RegistryAccess registryAccess) {
+    public static synchronized void ensureBuilt() {
         if (!built) {
-            rebuild(registryAccess);
+            rebuild();
         }
     }
 
