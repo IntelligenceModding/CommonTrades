@@ -20,8 +20,9 @@ import net.minecraft.world.entity.npc.VillagerTrades;
 import net.neoforged.fml.ModList;
 
 public final class WanderingTradeDebugReport {
-    private static final int GENERIC_TRADE_LEVEL = 1;
-    private static final int RARE_TRADE_LEVEL = 2;
+    private static final int BUYING_TRADE_GROUP = 0;
+    private static final int RARE_TRADE_GROUP = 1;
+    private static final int GENERIC_TRADE_GROUP = 2;
     private static final int ENTRIES_PER_PAGE = 18;
     private static final String COMMON_TRADES_FILTER = CommonTrades.MOD_ID;
     private static final String VANILLA_FILTER = "vanilla";
@@ -128,23 +129,25 @@ public final class WanderingTradeDebugReport {
             Set<VillagerTrades.ItemListing> vanillaListings,
             TradeGroupBuilder vanilla,
             Map<String, TradeGroupBuilder> otherModGroups) {
-        collectRegisteredTrades(GENERIC_TRADE_LEVEL, "Generic", vanillaListings, vanilla, otherModGroups);
-        collectRegisteredTrades(RARE_TRADE_LEVEL, "Rare", vanillaListings, vanilla, otherModGroups);
+        collectRegisteredTrades(BUYING_TRADE_GROUP, "Buying", vanillaListings, vanilla, otherModGroups);
+        collectRegisteredTrades(RARE_TRADE_GROUP, "Rare", vanillaListings, vanilla, otherModGroups);
+        collectRegisteredTrades(GENERIC_TRADE_GROUP, "Generic", vanillaListings, vanilla, otherModGroups);
     }
 
     private static void collectRegisteredTrades(
-            int level,
-            String rarity,
+            int groupIndex,
+            String label,
             Set<VillagerTrades.ItemListing> vanillaListings,
             TradeGroupBuilder vanilla,
             Map<String, TradeGroupBuilder> otherModGroups) {
-        VillagerTrades.ItemListing[] listings = VillagerTrades.WANDERING_TRADER_TRADES.get(level);
-        if (listings == null) {
+        List<VillagerTrades.ItemListing[]> tradeGroups = RegisteredWanderingTradeInspector.wanderingTradeListings();
+        if (groupIndex >= tradeGroups.size()) {
             return;
         }
 
+        VillagerTrades.ItemListing[] listings = tradeGroups.get(groupIndex);
         for (VillagerTrades.ItemListing listing : listings) {
-            DebugTrade trade = inspectListing(rarity, listing);
+            DebugTrade trade = inspectListing(label, listing);
             if (vanillaListings.contains(listing)) {
                 vanilla.add(trade);
             } else {

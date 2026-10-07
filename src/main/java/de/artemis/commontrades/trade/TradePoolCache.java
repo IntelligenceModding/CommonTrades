@@ -20,6 +20,7 @@ import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.trading.ItemCost;
 import net.minecraft.world.item.trading.MerchantOffer;
 import net.neoforged.neoforge.common.Tags;
@@ -216,7 +217,11 @@ public final class TradePoolCache {
                 && defaultStack.getMaxStackSize() > 1
                 && !defaultStack.isDamageableItem()
                 && !defaultStack.has(DataComponents.CREATIVE_SLOT_LOCK)
-                && !defaultStack.has(DataComponents.HIDE_TOOLTIP);
+                && !hidesTooltip(defaultStack);
+    }
+
+    private static boolean hidesTooltip(ItemStack stack) {
+        return stack.getOrDefault(DataComponents.TOOLTIP_DISPLAY, TooltipDisplay.DEFAULT).hideTooltip();
     }
 
     private static List<TradeCategory> availableCategories(Set<Item> usedItems) {

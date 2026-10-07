@@ -1,10 +1,10 @@
 package de.artemis.commontrades.trade;
 
 import de.artemis.commontrades.CommonTrades;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -13,6 +13,7 @@ import net.minecraft.world.entity.npc.VillagerTrades;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import org.apache.commons.lang3.tuple.Pair;
 
 public final class RegisteredWanderingTradeInspector {
     private RegisteredWanderingTradeInspector() {
@@ -20,7 +21,7 @@ public final class RegisteredWanderingTradeInspector {
 
     public static Set<Item> registeredResultItems() {
         Set<Item> items = new HashSet<>();
-        VillagerTrades.WANDERING_TRADER_TRADES.values().forEach(tradeListings -> {
+        wanderingTradeListings().forEach(tradeListings -> {
             for (VillagerTrades.ItemListing listing : tradeListings) {
                 inspectKnownListing(listing).map(InspectedOffer::item).ifPresent(items::add);
             }
@@ -68,14 +69,14 @@ public final class RegisteredWanderingTradeInspector {
             Field field = managerClass.getDeclaredField("WANDERER_TRADES");
             field.setAccessible(true);
             @SuppressWarnings("unchecked")
-            Int2ObjectMap<VillagerTrades.ItemListing[]> vanillaTrades =
-                    (Int2ObjectMap<VillagerTrades.ItemListing[]>) field.get(null);
-            for (VillagerTrades.ItemListing[] tradeListings : vanillaTrades.values()) {
-                listings.addAll(Arrays.asList(tradeListings));
+            List<Pair<VillagerTrades.ItemListing[], Integer>> vanillaTrades =
+                    (List<Pair<VillagerTrades.ItemListing[], Integer>>) field.get(null);
+            for (Pair<VillagerTrades.ItemListing[], Integer> tradeGroup : vanillaTrades) {
+                listings.addAll(Arrays.asList(tradeGroup.getLeft()));
             }
         } catch (ReflectiveOperationException | ClassCastException exception) {
             CommonTrades.LOGGER.debug("Could not inspect vanilla Wandering Trader trade baseline.", exception);
-            VillagerTrades.WANDERING_TRADER_TRADES.values().forEach(tradeListings -> {
+            wanderingTradeListings().forEach(tradeListings -> {
                 for (VillagerTrades.ItemListing listing : tradeListings) {
                     if (listing.getClass().getName().startsWith("net.minecraft.")) {
                         listings.add(listing);
@@ -84,6 +85,12 @@ public final class RegisteredWanderingTradeInspector {
             });
         }
         return listings;
+    }
+
+    public static List<VillagerTrades.ItemListing[]> wanderingTradeListings() {
+        return VillagerTrades.WANDERING_TRADER_TRADES.stream()
+                .map(Pair::getLeft)
+                .toList();
     }
 
     private static Optional<InspectedOffer> knownOffer(ItemStack result, int emeraldCost, int maxUses, String note) {

@@ -68,7 +68,7 @@ neoForge {
         }
 
         data {
-            data()
+            serverData()
             programArguments.addAll '--mod', project.mod_id,
                     '--all',
                     '--output', file('src/generated/resources').getAbsolutePath(),
@@ -127,7 +127,7 @@ tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
 }
 
-tasks.register('runClientData') {
+tasks.register('runServerData') {
     dependsOn tasks.named('runData')
 }
 
