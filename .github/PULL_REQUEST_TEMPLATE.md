@@ -16,9 +16,9 @@ Explain the purpose of the change rather than only listing modified files.
 <!--
 Example:
 
-- Minecraft version: 1.21.5
+- Minecraft version: 1.21.6
 - Mod loader: NeoForge
-- Target branch: 1.21.5-neoforge
+- Target branch: 1.21.6-neoforge
 -->
 
 ## Changes
@@ -42,7 +42,7 @@ Please mention:
 Example:
 
 - `gradlew.bat build` completed successfully.
-- Tested the changes in the 1.21.5 NeoForge development client.
+- Tested the changes in the 1.21.6 NeoForge development client.
 - Tested Wandering Trader offer generation.
 - Tested affected tags, config values, blacklists, visual markers, networking, or debug commands where applicable.
 -->
