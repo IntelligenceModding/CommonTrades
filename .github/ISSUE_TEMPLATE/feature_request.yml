@@ -1,0 +1,56 @@
+name: Feature Request
+description: Suggest a new feature or improvement for Common Trades
+title: "[Feature] "
+labels:
+  - enhancement
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for suggesting an improvement to Common Trades.
+
+        Please describe the idea clearly and explain how it would improve the project.
+
+  - type: textarea
+    id: feature
+    attributes:
+      label: Feature
+      placeholder: Describe the feature, compatibility improvement, or other change.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reason
+    attributes:
+      label: Why would this be useful?
+      placeholder: Explain why this feature would be useful.
+    validations:
+      required: true
+
+  - type: textarea
+    id: design
+    attributes:
+      label: Suggested Behavior or Design
+      placeholder: Describe your suggested implementation or design.
+
+  - type: textarea
+    id: references
+    attributes:
+      label: References
+
+  - type: input
+    id: version
+    attributes:
+      label: Relevant Minecraft Version
+      placeholder: "Example: 1.21.1 or N/A"
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before Submitting
+      options:
+        - label: I searched existing issues and did not find the same suggestion.
+          required: true
+        - label: This request is related to Common Trades and fits the general purpose of the project.
+          required: true

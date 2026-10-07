@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "de.artemis.commontrades.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "WanderingTraderMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
