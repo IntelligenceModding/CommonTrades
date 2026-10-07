@@ -3,11 +3,11 @@
 </p>
 
 <p align="center">
-  Common Trades automatically adds suitable modded vegetation and crop-starter items to Wandering Trader trades for seamless modpack integration.
+  Common Trades adds missing modded plant and crop-starter items to Wandering Trader trades for cleaner modpack integration.
 </p>
 
 <p align="center">
-  Install biome, farming, or world-generation mods, and Common Trades can discover their tagged saplings, flowers, mushrooms, seeds, and small plants without hardcoded compatibility patches.
+  Tagged saplings, flowers, mushrooms, seeds, and small plants can become trader offers when they are not already supplied by vanilla or another mod.
 </p>
 
 <br>
@@ -27,7 +27,7 @@
 </p>
 
 <p align="center">
-  Server config controls generated trades, prices, categories, and blacklists. Client settings only affect local Wandering Trader GUI markers when the client receives Common Trades offer indexes from the server.
+  Server config controls generated offers, prices, categories, and blacklists. Client settings only control local Wandering Trader trade markers.
 </p>
 
 <br>
@@ -41,23 +41,23 @@
 </p>
 
 <p align="center">
-  &bull; Automatic Wandering Trader offer generation for eligible modded vegetation and crop-starter items<br>
+  &bull; Automatic Wandering Trader offers for missing modded plant and crop-starter items<br>
   &bull; Tag-based discovery using vanilla, common <code>c</code>, and Common Trades item tags<br>
-  &bull; Supported categories for saplings, flowers, mushrooms, seeds, and small plants<br>
-  &bull; Deterministic category priority when an item appears in multiple supported tags<br>
-  &bull; Configurable target count of Common Trades offers per Wandering Trader<br>
-  &bull; Configurable emerald prices and per-category enable switches<br>
-  &bull; Item, mod namespace, and tag blacklists for pack-level control<br>
-  &bull; Built-in datapack blacklist tag at <code>commontrades:wandering_trader/blacklist</code><br>
-  &bull; Vanilla Wandering Trader trades are preserved, with Common Trades offers added to the existing pool<br>
-  &bull; Duplicate item filtering so generated offers avoid items already selected by the trader<br>
-  &bull; Optional client-side trade-row outlines and <code>Added by Common Trades</code> tooltip text<br>
-  &bull; Debug command for reviewing discovered Wandering Trader trade pools<br>
-  &bull; No blocks, items, mobs, textures, models, custom progression systems, or permanent item metadata
+  &bull; Duplicate filtering against registered trader offers and the current trader's selected offers<br>
+  &bull; Configurable offer count, category toggles, emerald prices, and blacklists<br>
+  &bull; Datapack tags for pack-specific additions and exclusions<br>
+  &bull; Optional client-side outlines and tooltip text for Common Trades-generated offers<br>
+  &bull; Operator debug command for reviewing Wandering Trader trade pools
 </p>
 
 <p align="center">
-  Common Trades is designed for modpacks that want modded plant and crop items to appear naturally in Wandering Trader offers while keeping behavior predictable and configurable.
+  Common Trades is built for modpacks that want Wandering Traders to feel more complete without adding hardcoded compatibility patches for every mod.
+</p>
+
+<p align="center">
+  <a href="CONFIG.md"><img src="https://img.shields.io/badge/Config-Reference-2D6CDF?style=for-the-badge&logo=readthedocs&logoColor=white" alt="Common Trades config reference"></a>
+  &nbsp;&nbsp;&nbsp;
+  <a href="DATAPACKS.md"><img src="https://img.shields.io/badge/Datapacks-Reference-2D6CDF?style=for-the-badge&logo=databricks&logoColor=white" alt="Common Trades datapack reference"></a>
 </p>
 
 <br>
@@ -67,13 +67,11 @@
 </p>
 
 <p align="center">
-  Configuration, datapack tags, bug reports, feature requests, version support requests, and contributions are documented in this repository.
+  Bug reports, feature requests, version support requests, and contributions are welcome.
 </p>
 
 <p align="center">
-  <a href="CONFIG.md"><img src="https://img.shields.io/badge/GitHub-Config%20Reference-181717?style=for-the-badge&logo=github&logoColor=white" alt="Config Reference"></a>
-  &nbsp;&nbsp;&nbsp;
-  <a href="DATAPACKS.md"><img src="https://img.shields.io/badge/GitHub-Datapack%20Reference-181717?style=for-the-badge&logo=github&logoColor=white" alt="Datapack Reference"></a>
+  Please read the contribution guidelines before submitting changes and use the appropriate issue form when reporting problems or suggesting improvements.
 </p>
 
 <p align="center">
@@ -99,13 +97,19 @@
 </p>
 
 <p align="center">
-  Follow the project, browse the source, or join the community for updates, previews, and modding help.
+  Follow the project, browse releases, or join the community for updates, previews, and modding help.
 </p>
 
 <p align="center">
   <a href="https://discord.intelligence-modding.de/"><img src="https://img.shields.io/badge/Discord-Join%20Community-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Join the Intelligence Modding Discord"></a>
   &nbsp;&nbsp;&nbsp;
   <a href="https://www.youtube.com/@intelligencemodding4093"><img src="https://img.shields.io/badge/YouTube-Intelligence%20Modding-FF0000?style=for-the-badge&logo=youtube&logoColor=white" alt="Intelligence Modding on YouTube"></a>
+</p>
+
+<p align="center">
+  <a href="https://www.curseforge.com/minecraft/mc-mods/common-trades"><img src="https://img.shields.io/badge/CurseForge-Common%20Trades-F16436?style=for-the-badge&logo=curseforge&logoColor=white" alt="Common Trades on CurseForge"></a>
+  &nbsp;&nbsp;&nbsp;
+  <a href="https://modrinth.com/mod/common-trades"><img src="https://img.shields.io/badge/Modrinth-Common%20Trades-00AF5C?style=for-the-badge&logo=modrinth&logoColor=white" alt="Common Trades on Modrinth"></a>
 </p>
 
 <p align="center">
@@ -128,7 +132,7 @@
   &bull; The NeoForged team for NeoForge and its documentation<br>
   &bull; The Minecraft modding community for examples, tools, and support<br>
   &bull; The Intelligence Modding community for feedback, testing, and ideas<br>
-  &bull; Everyone who reports issues, suggests improvements, or uses Common Trades in their worlds, servers, or modpacks
+  &bull; Everyone who reports issues, suggests improvements, or includes Common Trades in their worlds, servers, or modpacks
 </p>
 
 <p align="center">

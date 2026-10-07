@@ -5,7 +5,7 @@
 <h1 align="center">Datapack Reference</h1>
 
 <p align="center">
-  Common Trades uses item tags to discover eligible Wandering Trader offers and to let pack developers include or exclude specific modded items.
+  Common Trades uses item tags to discover eligible Wandering Trader offers and to let pack developers include or exclude specific modded items that are not already covered by registered trader pools.
 </p>
 
 <p align="center">
@@ -103,6 +103,7 @@ An item must pass all eligibility checks before it can become a Wandering Trader
 Common Trades excludes:
 
 - `minecraft:*` items;
+- items already identifiable in registered Wandering Trader trades;
 - empty or air items;
 - items with max stack size `1`;
 - damageable items;
@@ -111,6 +112,10 @@ Common Trades excludes:
 - items in `commontrades:wandering_trader/blacklist`;
 - items in NeoForge's hidden-from-recipe-viewers tag;
 - items blocked by the server config item, mod, or tag blacklists.
+
+Registered trade detection covers vanilla trader listings and NeoForge `BasicItemListing` entries, which are commonly used by mods when adding simple item-for-emerald offers.
+
+If another mod uses a custom dynamic trade factory whose result item cannot be inspected safely, Common Trades may not be able to exclude that item during discovery. The same-trader duplicate cleanup still removes Common Trades offers when the current trader already selected an external offer with the same result item.
 
 ## Server Config Interaction
 
@@ -143,7 +148,9 @@ Generated offers use:
 - one villager XP;
 - a `0.05` price multiplier.
 
-The mod avoids adding duplicate result items that are already present in the trader's selected offers.
+The mod avoids adding result items that are already present in registered Wandering Trader trades where the result can be identified.
+
+It also avoids adding duplicate result items that are already present in the trader's selected offers.
 
 ## Visual Markers
 

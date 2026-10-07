@@ -63,6 +63,7 @@ public final class TradePoolCache {
         Set<ResourceLocation> itemBlacklist = CommonTradesConfig.itemBlacklist();
         Set<String> modBlacklist = CommonTradesConfig.modBlacklist();
         List<TagKey<Item>> tagBlacklist = CommonTradesConfig.tagBlacklist();
+        Set<Item> registeredWanderingTradeItems = RegisteredWanderingTradeInspector.registeredResultItems();
 
         Map<ResourceLocation, TradeEntry> discovered = new LinkedHashMap<>();
         for (TradeCategory category : TradeCategory.values()) {
@@ -71,7 +72,7 @@ public final class TradePoolCache {
                     for (Holder<Item> holder : BuiltInRegistries.ITEM.getTagOrEmpty(sourceTag)) {
                         Item item = holder.value();
                         ResourceLocation id = BuiltInRegistries.ITEM.getKey(item);
-                        if (isEligible(holder, item, id, itemBlacklist, modBlacklist, tagBlacklist)) {
+                        if (isEligible(holder, item, id, itemBlacklist, modBlacklist, tagBlacklist, registeredWanderingTradeItems)) {
                             discovered.putIfAbsent(id, new TradeEntry(category, item, id));
                         }
                     }
@@ -191,11 +192,15 @@ public final class TradePoolCache {
             ResourceLocation id,
             Set<ResourceLocation> itemBlacklist,
             Set<String> modBlacklist,
-            List<TagKey<Item>> tagBlacklist) {
+            List<TagKey<Item>> tagBlacklist,
+            Set<Item> registeredWanderingTradeItems) {
         if (item == Items.AIR || "minecraft".equals(id.getNamespace())) {
             return false;
         }
         if (itemBlacklist.contains(id) || modBlacklist.contains(id.getNamespace())) {
+            return false;
+        }
+        if (registeredWanderingTradeItems.contains(item)) {
             return false;
         }
         if (holder.is(CommonTradeTags.BLACKLIST) || holder.is(Tags.Items.HIDDEN_FROM_RECIPE_VIEWERS)) {
