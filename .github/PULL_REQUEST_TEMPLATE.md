@@ -16,9 +16,9 @@ Explain the purpose of the change rather than only listing modified files.
 <!--
 Example:
 
-- Minecraft version: 1.18.2
+- Minecraft version: 1.16.5
 - Mod loader: Forge
-- Target branch: 1.18.2-forge
+- Target branch: 1.16.5-forge
 -->
 
 ## Changes
@@ -42,7 +42,7 @@ Please mention:
 Example:
 
 - `gradlew.bat build` completed successfully.
-- Tested the changes in the 1.18.2 Forge development client.
+- Tested the changes in the 1.16.5 Forge development client.
 - Tested Wandering Trader offer generation.
 - Tested affected tags, config values, blacklists, visual markers, networking, or debug commands where applicable.
 -->

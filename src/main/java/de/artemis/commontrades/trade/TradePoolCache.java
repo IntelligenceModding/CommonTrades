@@ -3,6 +3,7 @@ package de.artemis.commontrades.trade;
 import de.artemis.commontrades.CommonTrades;
 import de.artemis.commontrades.config.CommonTradesConfig;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -11,18 +12,19 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
-import net.minecraft.core.Holder;
-import net.minecraft.core.Registry;
-import net.minecraft.core.RegistryAccess;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.TagKey;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.trading.MerchantOffer;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.item.MerchantOffer;
+import net.minecraft.tags.ITag;
+import net.minecraft.tags.ITagCollection;
+import net.minecraft.tags.ITagCollectionSupplier;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.registry.Registry;
 import net.minecraftforge.event.TagsUpdatedEvent;
 import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.event.config.ModConfigEvent;
+import net.minecraftforge.fml.config.ModConfig.ModConfigEvent;
 
 public final class TradePoolCache {
     private static final float PRICE_MULTIPLIER = 0.05F;
@@ -38,11 +40,11 @@ public final class TradePoolCache {
         rebuild(event.getTagManager());
     }
 
-    public static void onConfigLoading(ModConfigEvent.Loading event) {
+    public static void onConfigLoading(ModConfig.Loading event) {
         onConfigChanged(event);
     }
 
-    public static void onConfigReloading(ModConfigEvent.Reloading event) {
+    public static void onConfigReloading(ModConfig.Reloading event) {
         onConfigChanged(event);
     }
 
@@ -52,21 +54,22 @@ public final class TradePoolCache {
         }
     }
 
-    public static synchronized void rebuild(RegistryAccess registryAccess) {
+    public static synchronized void rebuild(ITagCollectionSupplier tagManager) {
         Map<TradeCategory, List<TradeEntry>> rebuilt = new EnumMap<>(TradeCategory.class);
         Set<ResourceLocation> itemBlacklist = CommonTradesConfig.itemBlacklist();
         Set<String> modBlacklist = CommonTradesConfig.modBlacklist();
-        List<TagKey<Item>> tagBlacklist = CommonTradesConfig.tagBlacklist();
+        List<ITag.INamedTag<Item>> tagBlacklist = CommonTradesConfig.tagBlacklist();
         Set<Item> registeredWanderingTradeItems = RegisteredWanderingTradeInspector.registeredResultItems();
+        ITagCollection<Item> itemTags = tagManager == null ? ItemTags.getAllTags() : tagManager.getItems();
 
         Map<ResourceLocation, TradeEntry> discovered = new LinkedHashMap<>();
         for (TradeCategory category : TradeCategory.values()) {
             if (CommonTradesConfig.enabled() && CommonTradesConfig.isCategoryEnabled(category)) {
-                for (TagKey<Item> sourceTag : category.sourceTags()) {
-                    for (Holder<Item> holder : Registry.ITEM.getTagOrEmpty(sourceTag)) {
-                        Item item = holder.value();
+                for (ITag.INamedTag<Item> sourceTag : category.sourceTags()) {
+                    ITag<Item> tag = itemTags.getTagOrEmpty(sourceTag.getName());
+                    for (Item item : tag.getValues()) {
                         ResourceLocation id = Registry.ITEM.getKey(item);
-                        if (isEligible(holder, item, id, itemBlacklist, modBlacklist, tagBlacklist, registeredWanderingTradeItems)) {
+                        if (isEligible(item, id, itemBlacklist, modBlacklist, tagBlacklist, registeredWanderingTradeItems)) {
                             discovered.putIfAbsent(id, new TradeEntry(category, item, id));
                         }
                     }
@@ -76,15 +79,19 @@ public final class TradePoolCache {
 
         int total = 0;
         for (TradeCategory category : TradeCategory.values()) {
-            List<TradeEntry> entries = discovered.values().stream()
-                    .filter(entry -> entry.category() == category)
-                    .toList();
+            List<TradeEntry> entries = new ArrayList<>();
+            for (TradeEntry entry : discovered.values()) {
+                if (entry.category() == category) {
+                    entries.add(entry);
+                }
+            }
+            entries = Collections.unmodifiableList(entries);
             rebuilt.put(category, entries);
             total += entries.size();
             CommonTrades.LOGGER.debug("Common Trades found {} eligible {}.", entries.size(), category.logName());
         }
 
-        entriesByCategory = Map.copyOf(rebuilt);
+        entriesByCategory = Collections.unmodifiableMap(rebuilt);
         built = true;
         if (CommonTradesConfig.isLoaded()) {
             CommonTrades.LOGGER.info("Common Trades found {} eligible modded items across {} categories.", total, TradeCategory.values().length);
@@ -93,9 +100,9 @@ public final class TradePoolCache {
         }
     }
 
-    public static synchronized void ensureBuilt(RegistryAccess registryAccess) {
+    public static synchronized void ensureBuilt() {
         if (!built) {
-            rebuild(registryAccess);
+            rebuild(null);
         }
     }
 
@@ -106,9 +113,9 @@ public final class TradePoolCache {
     public static synchronized Map<TradeCategory, List<TradeEntry>> snapshotEntriesByCategory() {
         Map<TradeCategory, List<TradeEntry>> snapshot = new EnumMap<>(TradeCategory.class);
         for (TradeCategory category : TradeCategory.values()) {
-            snapshot.put(category, List.copyOf(entriesByCategory.getOrDefault(category, List.of())));
+            snapshot.put(category, new ArrayList<>(entriesByCategory.getOrDefault(category, Collections.<TradeEntry>emptyList())));
         }
-        return Map.copyOf(snapshot);
+        return Collections.unmodifiableMap(snapshot);
     }
 
     public static List<MerchantOffer> createOffers(Random random, Set<Item> usedItems, int maxOffers) {
@@ -120,7 +127,7 @@ public final class TradePoolCache {
         Set<Item> blockedItems = new HashSet<>(usedItems);
         while (offers.size() < maxOffers) {
             Optional<SelectedTrade> trade = createOffer(random, blockedItems);
-            if (trade.isEmpty()) {
+            if (!trade.isPresent()) {
                 break;
             }
 
@@ -144,7 +151,7 @@ public final class TradePoolCache {
         int attempts = Math.max(16, categories.size() * 8);
         for (int i = 0; i < attempts; i++) {
             TradeCategory category = pickCategory(categories, random);
-            List<TradeEntry> entries = entriesByCategory.getOrDefault(category, List.of());
+            List<TradeEntry> entries = entriesByCategory.getOrDefault(category, Collections.<TradeEntry>emptyList());
             if (entries.isEmpty()) {
                 continue;
             }
@@ -162,7 +169,7 @@ public final class TradePoolCache {
 
         List<TradeEntry> remaining = new ArrayList<>();
         for (TradeCategory category : categories) {
-            for (TradeEntry entry : entriesByCategory.getOrDefault(category, List.of())) {
+            for (TradeEntry entry : entriesByCategory.getOrDefault(category, Collections.<TradeEntry>emptyList())) {
                 if (!usedItems.contains(entry.item())) {
                     remaining.add(entry);
                 }
@@ -181,12 +188,11 @@ public final class TradePoolCache {
     }
 
     private static boolean isEligible(
-            Holder<Item> holder,
             Item item,
             ResourceLocation id,
             Set<ResourceLocation> itemBlacklist,
             Set<String> modBlacklist,
-            List<TagKey<Item>> tagBlacklist,
+            List<ITag.INamedTag<Item>> tagBlacklist,
             Set<Item> registeredWanderingTradeItems) {
         if (item == Items.AIR || "minecraft".equals(id.getNamespace())) {
             return false;
@@ -197,11 +203,11 @@ public final class TradePoolCache {
         if (registeredWanderingTradeItems.contains(item)) {
             return false;
         }
-        if (holder.is(CommonTradeTags.BLACKLIST)) {
+        if (item.is(CommonTradeTags.BLACKLIST)) {
             return false;
         }
-        for (TagKey<Item> blacklistedTag : tagBlacklist) {
-            if (holder.is(blacklistedTag)) {
+        for (ITag.INamedTag<Item> blacklistedTag : tagBlacklist) {
+            if (item.is(blacklistedTag)) {
                 return false;
             }
         }
@@ -219,10 +225,11 @@ public final class TradePoolCache {
                 continue;
             }
 
-            boolean hasUnusedEntry = entriesByCategory.getOrDefault(category, List.of()).stream()
-                    .anyMatch(entry -> !usedItems.contains(entry.item()));
-            if (hasUnusedEntry) {
-                categories.add(category);
+            for (TradeEntry entry : entriesByCategory.getOrDefault(category, Collections.<TradeEntry>emptyList())) {
+                if (!usedItems.contains(entry.item())) {
+                    categories.add(category);
+                    break;
+                }
             }
         }
         return categories;
@@ -260,8 +267,8 @@ public final class TradePoolCache {
     private static Map<TradeCategory, List<TradeEntry>> emptyPools() {
         Map<TradeCategory, List<TradeEntry>> pools = new EnumMap<>(TradeCategory.class);
         for (TradeCategory category : TradeCategory.values()) {
-            pools.put(category, List.of());
+            pools.put(category, Collections.<TradeEntry>emptyList());
         }
-        return Map.copyOf(pools);
+        return Collections.unmodifiableMap(pools);
     }
 }

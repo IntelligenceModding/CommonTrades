@@ -1,6 +1,5 @@
 package de.artemis.commontrades;
 
-import com.mojang.logging.LogUtils;
 import de.artemis.commontrades.client.CommonTradesClientSetup;
 import de.artemis.commontrades.command.CommonTradesCommands;
 import de.artemis.commontrades.config.CommonTradesClientConfig;
@@ -16,12 +15,13 @@ import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @Mod(CommonTrades.MOD_ID)
 public final class CommonTrades {
     public static final String MOD_ID = "commontrades";
-    public static final Logger LOGGER = LogUtils.getLogger();
+    public static final Logger LOGGER = LogManager.getLogger();
 
     public CommonTrades() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();

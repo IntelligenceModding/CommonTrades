@@ -7,6 +7,7 @@ import de.artemis.commontrades.trade.TradeCategory;
 import de.artemis.commontrades.trade.TradeEntry;
 import de.artemis.commontrades.trade.TradePoolCache;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -15,9 +16,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
-import net.minecraft.core.RegistryAccess;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.npc.VillagerTrades;
+import net.minecraft.entity.merchant.villager.VillagerTrades;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.ModList;
 
 public final class WanderingTradeDebugReport {
@@ -37,10 +37,10 @@ public final class WanderingTradeDebugReport {
         this.resultCounts = resultCounts;
     }
 
-    public static WanderingTradeDebugReport create(RegistryAccess registryAccess) {
-        TradePoolCache.ensureBuilt(registryAccess);
+    public static WanderingTradeDebugReport create() {
+        TradePoolCache.ensureBuilt();
 
-        Set<VillagerTrades.ItemListing> vanillaListings = vanillaListings();
+        Set<VillagerTrades.ITrade> vanillaListings = vanillaListings();
         Map<String, TradeGroupBuilder> otherModGroups = new HashMap<>();
         TradeGroupBuilder vanilla = new TradeGroupBuilder(GroupKind.VANILLA, VANILLA_FILTER, "Vanilla");
         TradeGroupBuilder commonTrades = new TradeGroupBuilder(GroupKind.COMMON_TRADES, COMMON_TRADES_FILTER, "Common Trades");
@@ -50,23 +50,29 @@ public final class WanderingTradeDebugReport {
 
         List<TradeGroup> groups = new ArrayList<>();
         groups.add(vanilla.build());
-        otherModGroups.values().stream()
-                .map(TradeGroupBuilder::build)
-                .sorted(Comparator.comparing(TradeGroup::title))
-                .forEach(groups::add);
+        List<TradeGroup> otherGroups = new ArrayList<>();
+        for (TradeGroupBuilder builder : otherModGroups.values()) {
+            otherGroups.add(builder.build());
+        }
+        otherGroups.sort(Comparator.comparing(TradeGroup::title));
+        groups.addAll(otherGroups);
         groups.add(commonTrades.build());
 
         Map<String, Integer> resultCounts = new HashMap<>();
         for (TradeGroup group : groups) {
             for (DebugTrade trade : group.trades()) {
-                trade.resultId().ifPresent(id -> resultCounts.merge(id.toString(), 1, Integer::sum));
+                if (trade.resultId().isPresent()) {
+                    String id = trade.resultId().get().toString();
+                    Integer count = resultCounts.get(id);
+                    resultCounts.put(id, count == null ? 1 : count + 1);
+                }
             }
         }
         return new WanderingTradeDebugReport(groups, resultCounts);
     }
 
-    public static Iterable<String> suggestedFilters(RegistryAccess registryAccess) {
-        WanderingTradeDebugReport report = create(registryAccess);
+    public static Iterable<String> suggestedFilters() {
+        WanderingTradeDebugReport report = create();
         Set<String> filters = new TreeSet<>();
         filters.add(VANILLA_FILTER);
         filters.add(COMMON_TRADES_FILTER);
@@ -126,7 +132,7 @@ public final class WanderingTradeDebugReport {
     }
 
     private static void collectRegisteredTrades(
-            Set<VillagerTrades.ItemListing> vanillaListings,
+            Set<VillagerTrades.ITrade> vanillaListings,
             TradeGroupBuilder vanilla,
             Map<String, TradeGroupBuilder> otherModGroups) {
         collectRegisteredTrades(GENERIC_TRADE_LEVEL, "Generic", vanillaListings, vanilla, otherModGroups);
@@ -136,29 +142,30 @@ public final class WanderingTradeDebugReport {
     private static void collectRegisteredTrades(
             int level,
             String rarity,
-            Set<VillagerTrades.ItemListing> vanillaListings,
+            Set<VillagerTrades.ITrade> vanillaListings,
             TradeGroupBuilder vanilla,
             Map<String, TradeGroupBuilder> otherModGroups) {
-        VillagerTrades.ItemListing[] listings = VillagerTrades.WANDERING_TRADER_TRADES.get(level);
+        VillagerTrades.ITrade[] listings = VillagerTrades.WANDERING_TRADER_TRADES.get(level);
         if (listings == null) {
             return;
         }
 
-        for (VillagerTrades.ItemListing listing : listings) {
+        for (VillagerTrades.ITrade listing : listings) {
             DebugTrade trade = inspectListing(rarity, listing);
             if (vanillaListings.contains(listing)) {
                 vanilla.add(trade);
             } else {
-                String modId = trade.resultId()
-                        .map(ResourceLocation::getNamespace)
-                        .orElse(UNKNOWN_MOD_ID);
+                String modId = trade.resultId().map(ResourceLocation::getNamespace).orElse(UNKNOWN_MOD_ID);
                 if (CommonTrades.MOD_ID.equals(modId)) {
                     modId = UNKNOWN_MOD_ID;
                 }
-                String title = OTHER_MODDED_MINECRAFT_ID.equals(modId)
-                        ? "minecraft (mod-added)"
-                        : modDisplayName(modId);
-                otherModGroups.computeIfAbsent(modId, id -> new TradeGroupBuilder(GroupKind.OTHER_MOD, id, title)).add(trade);
+                String title = OTHER_MODDED_MINECRAFT_ID.equals(modId) ? "minecraft (mod-added)" : modDisplayName(modId);
+                TradeGroupBuilder builder = otherModGroups.get(modId);
+                if (builder == null) {
+                    builder = new TradeGroupBuilder(GroupKind.OTHER_MOD, modId, title);
+                    otherModGroups.put(modId, builder);
+                }
+                builder.add(trade);
             }
         }
     }
@@ -166,7 +173,7 @@ public final class WanderingTradeDebugReport {
     private static void collectCommonTrades(TradeGroupBuilder commonTrades) {
         Map<TradeCategory, List<TradeEntry>> entriesByCategory = TradePoolCache.snapshotEntriesByCategory();
         for (TradeCategory category : TradeCategory.values()) {
-            for (TradeEntry entry : entriesByCategory.getOrDefault(category, List.of())) {
+            for (TradeEntry entry : entriesByCategory.getOrDefault(category, Collections.<TradeEntry>emptyList())) {
                 commonTrades.add(new DebugTrade(
                         categoryLabel(category),
                         Optional.of(entry.id()),
@@ -179,13 +186,13 @@ public final class WanderingTradeDebugReport {
         }
     }
 
-    private static DebugTrade inspectListing(String rarity, VillagerTrades.ItemListing listing) {
+    private static DebugTrade inspectListing(String rarity, VillagerTrades.ITrade listing) {
         Optional<RegisteredWanderingTradeInspector.InspectedOffer> offer =
                 RegisteredWanderingTradeInspector.inspectKnownListing(listing);
-        if (offer.isEmpty()) {
+        if (!offer.isPresent()) {
             return new DebugTrade(
                     rarity,
-                    Optional.empty(),
+                    Optional.<ResourceLocation>empty(),
                     "unknown",
                     "unknown",
                     "unknown",
@@ -204,7 +211,7 @@ public final class WanderingTradeDebugReport {
                 inspectedOffer.note());
     }
 
-    private static Set<VillagerTrades.ItemListing> vanillaListings() {
+    private static Set<VillagerTrades.ITrade> vanillaListings() {
         return RegisteredWanderingTradeInspector.vanillaListings();
     }
 
@@ -212,9 +219,13 @@ public final class WanderingTradeDebugReport {
         if (filter == null) {
             return groups;
         }
-        return groups.stream()
-                .filter(group -> group.matches(filter))
-                .toList();
+        List<TradeGroup> filtered = new ArrayList<>();
+        for (TradeGroup group : groups) {
+            if (group.matches(filter)) {
+                filtered.add(group);
+            }
+        }
+        return filtered;
     }
 
     private static List<IndexedTrade> flatten(List<TradeGroup> groups) {
@@ -230,15 +241,13 @@ public final class WanderingTradeDebugReport {
     private String formatTrade(DebugTrade trade) {
         String label = trade.commonTradesGenerated() ? "Common Trades: " + trade.label() : trade.label();
         String line = "[" + label + "] ";
-        line += trade.resultId()
-                .map(id -> id + " x" + trade.amount())
-                .orElse("dynamic/unknown result x" + trade.amount());
+        line += trade.resultId().map(id -> id + " x" + trade.amount()).orElse("dynamic/unknown result x" + trade.amount());
         line += " - " + emeraldText(trade.emeraldCost());
         line += " - max uses " + trade.maxUses();
         if (trade.resultId().map(id -> resultCounts.getOrDefault(id.toString(), 0) > 1).orElse(false)) {
             line += " [possible duplicate]";
         }
-        if (!trade.note().isBlank()) {
+        if (!trade.note().trim().isEmpty()) {
             line += " (" + trade.note() + ")";
         }
         return line;
@@ -252,28 +261,25 @@ public final class WanderingTradeDebugReport {
     }
 
     private int count(GroupKind kind) {
-        return groups.stream()
-                .filter(group -> group.kind() == kind)
-                .mapToInt(group -> group.trades().size())
-                .sum();
+        int count = 0;
+        for (TradeGroup group : groups) {
+            if (group.kind() == kind) {
+                count += group.trades().size();
+            }
+        }
+        return count;
     }
 
     private static String pageCommandSuffix(String filter, int page) {
-        if (filter == null) {
-            return " " + page;
-        }
-        return " " + filter + " " + page;
+        return filter == null ? " " + page : " " + filter + " " + page;
     }
 
     private static String emeraldText(String emeraldCost) {
-        if (!"1".equals(emeraldCost)) {
-            return emeraldCost + " Emeralds";
-        }
-        return "1 Emerald";
+        return "1".equals(emeraldCost) ? "1 Emerald" : emeraldCost + " Emeralds";
     }
 
     private static String normalizeFilter(String rawFilter) {
-        if (rawFilter == null || rawFilter.isBlank()) {
+        if (rawFilter == null || rawFilter.trim().isEmpty()) {
             return null;
         }
         return rawFilter.toLowerCase(Locale.ROOT);
@@ -311,7 +317,7 @@ public final class WanderingTradeDebugReport {
         }
         return ModList.get().getModContainerById(modId)
                 .map(container -> container.getModInfo().getDisplayName())
-                .filter(name -> !name.isBlank())
+                .filter(name -> !name.trim().isEmpty())
                 .orElse(modId);
     }
 
@@ -321,20 +327,101 @@ public final class WanderingTradeDebugReport {
         COMMON_TRADES
     }
 
-    private record DebugTrade(
-            String label,
-            Optional<ResourceLocation> resultId,
-            String amount,
-            String emeraldCost,
-            String maxUses,
-            boolean commonTradesGenerated,
-            String note) {
+    private static final class DebugTrade {
+        private final String label;
+        private final Optional<ResourceLocation> resultId;
+        private final String amount;
+        private final String emeraldCost;
+        private final String maxUses;
+        private final boolean commonTradesGenerated;
+        private final String note;
+
+        private DebugTrade(String label, Optional<ResourceLocation> resultId, String amount, String emeraldCost, String maxUses, boolean commonTradesGenerated, String note) {
+            this.label = label;
+            this.resultId = resultId;
+            this.amount = amount;
+            this.emeraldCost = emeraldCost;
+            this.maxUses = maxUses;
+            this.commonTradesGenerated = commonTradesGenerated;
+            this.note = note;
+        }
+
+        private String label() {
+            return label;
+        }
+
+        private Optional<ResourceLocation> resultId() {
+            return resultId;
+        }
+
+        private String amount() {
+            return amount;
+        }
+
+        private String emeraldCost() {
+            return emeraldCost;
+        }
+
+        private String maxUses() {
+            return maxUses;
+        }
+
+        private boolean commonTradesGenerated() {
+            return commonTradesGenerated;
+        }
+
+        private String note() {
+            return note;
+        }
     }
 
-    private record IndexedTrade(TradeGroup group, DebugTrade trade) {
+    private static final class IndexedTrade {
+        private final TradeGroup group;
+        private final DebugTrade trade;
+
+        private IndexedTrade(TradeGroup group, DebugTrade trade) {
+            this.group = group;
+            this.trade = trade;
+        }
+
+        private TradeGroup group() {
+            return group;
+        }
+
+        private DebugTrade trade() {
+            return trade;
+        }
     }
 
-    private record TradeGroup(GroupKind kind, String filterId, String title, List<DebugTrade> trades) {
+    private static final class TradeGroup {
+        private final GroupKind kind;
+        private final String filterId;
+        private final String title;
+        private final List<DebugTrade> trades;
+
+        private TradeGroup(GroupKind kind, String filterId, String title, List<DebugTrade> trades) {
+            this.kind = kind;
+            this.filterId = filterId;
+            this.title = title;
+            this.trades = trades;
+        }
+
+        private GroupKind kind() {
+            return kind;
+        }
+
+        private String filterId() {
+            return filterId;
+        }
+
+        private String title() {
+            return title;
+        }
+
+        private List<DebugTrade> trades() {
+            return trades;
+        }
+
         private boolean matches(String filter) {
             if (kind == GroupKind.VANILLA) {
                 return VANILLA_FILTER.equals(filter);
@@ -363,13 +450,9 @@ public final class WanderingTradeDebugReport {
         }
 
         private TradeGroup build() {
-            return new TradeGroup(
-                    kind,
-                    filterId,
-                    title,
-                    trades.stream()
-                            .sorted(Comparator.comparing(trade -> trade.resultId().map(ResourceLocation::toString).orElse("~" + trade.note())))
-                            .toList());
+            List<DebugTrade> sortedTrades = new ArrayList<>(trades);
+            sortedTrades.sort(Comparator.comparing(trade -> trade.resultId().map(ResourceLocation::toString).orElse("~" + trade.note())));
+            return new TradeGroup(kind, filterId, title, Collections.unmodifiableList(sortedTrades));
         }
     }
 }

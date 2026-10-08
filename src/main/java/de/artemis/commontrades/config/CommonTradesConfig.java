@@ -3,14 +3,15 @@ package de.artemis.commontrades.config;
 import de.artemis.commontrades.CommonTrades;
 import de.artemis.commontrades.trade.TradeCategory;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.TagKey;
-import net.minecraft.world.item.Item;
+import net.minecraft.item.Item;
+import net.minecraft.tags.ITag;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.ForgeConfigSpec;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -75,15 +76,15 @@ public final class CommonTradesConfig {
         itemBlacklist = builder
                 .translation("commontrades.configuration.blacklists.itemBlacklist")
                 .comment("Server-authoritative. Item ids that Common Trades must never offer. Example: [\"examplemod:rare_seed\"]")
-                .defineListAllowEmpty(List.of("itemBlacklist"), () -> List.<String>of(), value -> value instanceof String);
+                .defineListAllowEmpty(Collections.singletonList("itemBlacklist"), () -> Collections.<String>emptyList(), value -> value instanceof String);
         modBlacklist = builder
                 .translation("commontrades.configuration.blacklists.modBlacklist")
                 .comment("Server-authoritative. Mod ids/namespaces that Common Trades must never offer.")
-                .defineListAllowEmpty(List.of("modBlacklist"), () -> List.<String>of(), value -> value instanceof String);
+                .defineListAllowEmpty(Collections.singletonList("modBlacklist"), () -> Collections.<String>emptyList(), value -> value instanceof String);
         tagBlacklist = builder
                 .translation("commontrades.configuration.blacklists.tagBlacklist")
                 .comment("Server-authoritative. Item tag ids whose contents Common Trades must never offer. A leading # is optional.")
-                .defineListAllowEmpty(List.of("tagBlacklist"), () -> List.<String>of(), value -> value instanceof String);
+                .defineListAllowEmpty(Collections.singletonList("tagBlacklist"), () -> Collections.<String>emptyList(), value -> value instanceof String);
         builder.pop();
     }
 
@@ -100,23 +101,37 @@ public final class CommonTradesConfig {
     }
 
     public static boolean isCategoryEnabled(TradeCategory category) {
-        return switch (category) {
-            case SAPLINGS -> get(INSTANCE.enableSaplings);
-            case FLOWERS -> get(INSTANCE.enableFlowers);
-            case SEEDS -> get(INSTANCE.enableSeeds);
-            case MUSHROOMS -> get(INSTANCE.enableMushrooms);
-            case SMALL_PLANTS -> get(INSTANCE.enableSmallPlants);
-        };
+        switch (category) {
+            case SAPLINGS:
+                return get(INSTANCE.enableSaplings);
+            case FLOWERS:
+                return get(INSTANCE.enableFlowers);
+            case SEEDS:
+                return get(INSTANCE.enableSeeds);
+            case MUSHROOMS:
+                return get(INSTANCE.enableMushrooms);
+            case SMALL_PLANTS:
+                return get(INSTANCE.enableSmallPlants);
+            default:
+                throw new IllegalArgumentException("Unknown trade category " + category);
+        }
     }
 
     public static int emeraldCost(TradeCategory category) {
-        return switch (category) {
-            case SAPLINGS -> get(INSTANCE.saplingEmeraldCost);
-            case FLOWERS -> get(INSTANCE.flowerEmeraldCost);
-            case SEEDS -> get(INSTANCE.seedsEmeraldCost);
-            case MUSHROOMS -> get(INSTANCE.mushroomsEmeraldCost);
-            case SMALL_PLANTS -> get(INSTANCE.smallPlantsEmeraldCost);
-        };
+        switch (category) {
+            case SAPLINGS:
+                return get(INSTANCE.saplingEmeraldCost);
+            case FLOWERS:
+                return get(INSTANCE.flowerEmeraldCost);
+            case SEEDS:
+                return get(INSTANCE.seedsEmeraldCost);
+            case MUSHROOMS:
+                return get(INSTANCE.mushroomsEmeraldCost);
+            case SMALL_PLANTS:
+                return get(INSTANCE.smallPlantsEmeraldCost);
+            default:
+                throw new IllegalArgumentException("Unknown trade category " + category);
+        }
     }
 
     public static Set<ResourceLocation> itemBlacklist() {
@@ -145,8 +160,8 @@ public final class CommonTradesConfig {
         return blacklist;
     }
 
-    public static List<TagKey<Item>> tagBlacklist() {
-        List<TagKey<Item>> blacklist = new ArrayList<>();
+    public static List<ITag.INamedTag<Item>> tagBlacklist() {
+        List<ITag.INamedTag<Item>> blacklist = new ArrayList<>();
         for (String entry : get(INSTANCE.tagBlacklist)) {
             String idText = entry.startsWith("#") ? entry.substring(1) : entry;
             ResourceLocation id = ResourceLocation.tryParse(idText);
@@ -154,9 +169,9 @@ public final class CommonTradesConfig {
                 CommonTrades.LOGGER.warn("Ignoring malformed Common Trades tag blacklist entry '{}'", entry);
                 continue;
             }
-            blacklist.add(TagKey.create(Registry.ITEM_REGISTRY, id));
+            blacklist.add(ItemTags.createOptional(id));
         }
-        return List.copyOf(blacklist);
+        return Collections.unmodifiableList(blacklist);
     }
 
     private static boolean get(ForgeConfigSpec.BooleanValue value) {
@@ -172,7 +187,7 @@ public final class CommonTradesConfig {
     }
 
     private static boolean isValidNamespace(String namespace) {
-        if (namespace.isBlank()) {
+        if (namespace.trim().isEmpty()) {
             return false;
         }
         for (int index = 0; index < namespace.length(); index++) {

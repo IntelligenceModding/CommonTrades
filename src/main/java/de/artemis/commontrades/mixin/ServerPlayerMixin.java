@@ -1,16 +1,16 @@
 package de.artemis.commontrades.mixin;
 
 import de.artemis.commontrades.network.CommonTradesNetwork;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.item.trading.MerchantOffers;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.item.MerchantOffers;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(ServerPlayer.class)
+@Mixin(ServerPlayerEntity.class)
 abstract class ServerPlayerMixin {
-    @Inject(method = {"sendMerchantOffers", "m_7662_"}, at = @At("TAIL"), remap = false)
+    @Inject(method = {"sendMerchantOffers", "func_213818_a"}, at = @At("TAIL"), remap = false)
     private void commontrades$syncCommonTradeOfferIndexes(
             int containerId,
             MerchantOffers offers,
@@ -19,6 +19,6 @@ abstract class ServerPlayerMixin {
             boolean showProgress,
             boolean canRestock,
             CallbackInfo callbackInfo) {
-        CommonTradesNetwork.sendCommonTradeOfferIndexes((ServerPlayer) (Object) this, containerId, offers);
+        CommonTradesNetwork.sendCommonTradeOfferIndexes((ServerPlayerEntity) (Object) this, containerId, offers);
     }
 }

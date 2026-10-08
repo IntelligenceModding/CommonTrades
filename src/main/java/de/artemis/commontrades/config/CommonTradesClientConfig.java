@@ -57,7 +57,7 @@ public final class CommonTradesClientConfig {
     }
 
     public static boolean isColorCode(Object value) {
-        return value instanceof String text && parseRgb(text, -1) >= 0;
+        return value instanceof String && parseRgb((String) value, -1) >= 0;
     }
 
     public static void saveVisualMarkerSettings(boolean visualIndicators, int outlineOpacity, String outlineColor) {

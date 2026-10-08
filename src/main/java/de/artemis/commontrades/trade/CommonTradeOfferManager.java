@@ -8,10 +8,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.WeakHashMap;
-import net.minecraft.world.entity.npc.WanderingTrader;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.trading.MerchantOffer;
-import net.minecraft.world.item.trading.MerchantOffers;
+import net.minecraft.entity.merchant.villager.WanderingTraderEntity;
+import net.minecraft.item.Item;
+import net.minecraft.item.MerchantOffer;
+import net.minecraft.item.MerchantOffers;
 
 public final class CommonTradeOfferManager {
     private static final Set<MerchantOffer> OWNED_OFFERS = Collections.newSetFromMap(Collections.synchronizedMap(new WeakHashMap<>()));
@@ -19,7 +19,7 @@ public final class CommonTradeOfferManager {
     private CommonTradeOfferManager() {
     }
 
-    public static void finalizeOffers(WanderingTrader trader) {
+    public static void finalizeOffers(WanderingTraderEntity trader) {
         if (!CommonTradesConfig.enabled()) {
             removeOwnedCollisions(trader.getOffers());
             return;
@@ -33,7 +33,7 @@ public final class CommonTradeOfferManager {
         if (ownedCount < targetCount) {
             Set<Item> blockedItems = collectSoldItems(offers);
             List<MerchantOffer> additions = TradePoolCache.createOffers(
-                    trader.getRandom(),
+                    trader.getCommandSenderWorld().getRandom(),
                     blockedItems,
                     targetCount - ownedCount);
 

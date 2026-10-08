@@ -1,9 +1,9 @@
 package de.artemis.commontrades.client;
 
 import java.util.BitSet;
-import net.minecraft.world.inventory.MerchantMenu;
-import net.minecraft.world.item.trading.MerchantOffer;
-import net.minecraft.world.item.trading.MerchantOffers;
+import net.minecraft.inventory.container.MerchantContainer;
+import net.minecraft.item.MerchantOffer;
+import net.minecraft.item.MerchantOffers;
 
 public final class CommonTradeClientOfferMarkers {
     private static final BitSet MARKED_OFFERS = new BitSet();
@@ -29,11 +29,11 @@ public final class CommonTradeClientOfferMarkers {
         }
     }
 
-    public static boolean isMarked(MerchantMenu menu, int offerIndex) {
+    public static boolean isMarked(MerchantContainer menu, int offerIndex) {
         return menu.containerId == containerId && MARKED_OFFERS.get(offerIndex);
     }
 
-    public static boolean isMarked(MerchantMenu menu, MerchantOffer offer) {
+    public static boolean isMarked(MerchantContainer menu, MerchantOffer offer) {
         if (menu.containerId != containerId || MARKED_OFFERS.isEmpty()) {
             return false;
         }

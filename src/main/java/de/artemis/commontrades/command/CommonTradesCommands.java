@@ -5,10 +5,10 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import de.artemis.commontrades.trade.debug.WanderingTradeDebugReport;
-import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.Commands;
-import net.minecraft.commands.SharedSuggestionProvider;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.command.CommandSource;
+import net.minecraft.command.Commands;
+import net.minecraft.command.ISuggestionProvider;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 
 public final class CommonTradesCommands {
@@ -21,7 +21,7 @@ public final class CommonTradesCommands {
         register(event.getDispatcher());
     }
 
-    private static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
+    private static void register(CommandDispatcher<CommandSource> dispatcher) {
         dispatcher.register(Commands.literal("commontrades")
                 .requires(source -> source.hasPermission(REQUIRED_PERMISSION_LEVEL))
                 .then(Commands.literal("trades")
@@ -37,8 +37,8 @@ public final class CommonTradesCommands {
                                 .then(Commands.argument("page", IntegerArgumentType.integer(1))
                                         .executes(context -> showTrades(context, "vanilla", IntegerArgumentType.getInteger(context, "page")))))
                         .then(Commands.argument("modid", StringArgumentType.word())
-                                .suggests((context, builder) -> SharedSuggestionProvider.suggest(
-                                        WanderingTradeDebugReport.suggestedFilters(context.getSource().getServer().registryAccess()),
+                                .suggests((context, builder) -> ISuggestionProvider.suggest(
+                                        WanderingTradeDebugReport.suggestedFilters(),
                                         builder))
                                 .executes(context -> showTrades(context, StringArgumentType.getString(context, "modid"), 1))
                                 .then(Commands.argument("page", IntegerArgumentType.integer(1))
@@ -48,10 +48,10 @@ public final class CommonTradesCommands {
                                                 IntegerArgumentType.getInteger(context, "page")))))));
     }
 
-    private static int showTrades(CommandContext<CommandSourceStack> context, String filter, int page) {
-        WanderingTradeDebugReport report = WanderingTradeDebugReport.create(context.getSource().getServer().registryAccess());
+    private static int showTrades(CommandContext<CommandSource> context, String filter, int page) {
+        WanderingTradeDebugReport report = WanderingTradeDebugReport.create();
         for (String line : report.format(filter, page)) {
-            context.getSource().sendSuccess(new TextComponent(line), false);
+            context.getSource().sendSuccess(new StringTextComponent(line), false);
         }
         return report.filteredEntryCount(filter);
     }

@@ -1,9 +1,10 @@
 package de.artemis.commontrades.trade;
 
+import java.util.Arrays;
 import java.util.List;
+import net.minecraft.item.Item;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.tags.TagKey;
-import net.minecraft.world.item.Item;
+import net.minecraft.tags.ITag;
 import net.minecraftforge.common.Tags;
 
 /**
@@ -13,7 +14,7 @@ import net.minecraftforge.common.Tags;
 public enum TradeCategory {
     SAPLINGS(
             "saplings",
-            List.of(
+            Arrays.asList(
                     ItemTags.SAPLINGS,
                     CommonTradeTags.common("saplings"),
                     CommonTradeTags.forge("saplings"),
@@ -24,7 +25,7 @@ public enum TradeCategory {
             8),
     FLOWERS(
             "flowers",
-            List.of(
+            Arrays.asList(
                     ItemTags.SMALL_FLOWERS,
                     CommonTradeTags.common("flowers"),
                     CommonTradeTags.forge("flowers"),
@@ -35,7 +36,7 @@ public enum TradeCategory {
             12),
     MUSHROOMS(
             "mushrooms",
-            List.of(
+            Arrays.asList(
                     Tags.Items.MUSHROOMS,
                     CommonTradeTags.common("mushrooms"),
                     CommonTradeTags.forge("mushrooms"),
@@ -46,7 +47,7 @@ public enum TradeCategory {
             4),
     SEEDS(
             "seeds",
-            List.of(
+            Arrays.asList(
                     CommonTradeTags.minecraft("villager_plantable_seeds"),
                     Tags.Items.SEEDS,
                     CommonTradeTags.common("seeds"),
@@ -58,7 +59,7 @@ public enum TradeCategory {
             12),
     SMALL_PLANTS(
             "small plants",
-            List.of(
+            Arrays.asList(
                     CommonTradeTags.common("small_plants"),
                     CommonTradeTags.common("vines"),
                     CommonTradeTags.common("mosses"),
@@ -72,7 +73,7 @@ public enum TradeCategory {
             8);
 
     private final String logName;
-    private final List<TagKey<Item>> sourceTags;
+    private final List<ITag.INamedTag<Item>> sourceTags;
     private final int selectionWeight;
     private final int minOutputCount;
     private final int maxOutputCount;
@@ -80,7 +81,7 @@ public enum TradeCategory {
 
     TradeCategory(
             String logName,
-            List<TagKey<Item>> sourceTags,
+            List<ITag.INamedTag<Item>> sourceTags,
             int selectionWeight,
             int minOutputCount,
             int maxOutputCount,
@@ -97,7 +98,7 @@ public enum TradeCategory {
         return logName;
     }
 
-    public List<TagKey<Item>> sourceTags() {
+    public List<ITag.INamedTag<Item>> sourceTags() {
         return sourceTags;
     }
 
