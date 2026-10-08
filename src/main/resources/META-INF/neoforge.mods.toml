@@ -1,6 +1,7 @@
 modLoader="javafml"
 loaderVersion="${loader_version_range}"
 license="${mod_license}"
+licenseURL="https://github.com/IntelligenceModding/CommonTrades/blob/1.21.1-neoforge/LICENSE"
 issueTrackerURL="https://github.com/IntelligenceModding/CommonTrades/issues"
 
 [[mods]]
@@ -8,7 +9,9 @@ modId="${mod_id}"
 version="${mod_version}"
 displayName="${mod_name}"
 displayURL="https://github.com/IntelligenceModding/CommonTrades"
-logoFile="banner.png"
+bannerFile="banner.png"
+iconFile="icon.png"
+iconBlur=true
 authors="${mod_authors}"
 description='''${mod_description}'''
 

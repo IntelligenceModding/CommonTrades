@@ -1,10 +1,10 @@
 package de.artemis.commontrades.trade;
 
 import java.util.List;
+import net.minecraft.tags.BlockItemTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
-import net.neoforged.neoforge.common.Tags;
 
 /**
  * Declaration order is Common Trades' category priority when an item appears in multiple supported tags:
@@ -24,7 +24,7 @@ public enum TradeCategory {
     FLOWERS(
             "flowers",
             List.of(
-                    ItemTags.SMALL_FLOWERS,
+                    BlockItemTags.SMALL_FLOWERS.item(),
                     CommonTradeTags.common("flowers"),
                     CommonTradeTags.commonTrades("wandering_trader/flowers")),
             3,
@@ -34,7 +34,7 @@ public enum TradeCategory {
     MUSHROOMS(
             "mushrooms",
             List.of(
-                    Tags.Items.MUSHROOMS,
+                    CommonTradeTags.common("mushrooms"),
                     CommonTradeTags.commonTrades("wandering_trader/mushrooms")),
             2,
             1,
@@ -44,7 +44,7 @@ public enum TradeCategory {
             "seeds",
             List.of(
                     ItemTags.VILLAGER_PLANTABLE_SEEDS,
-                    Tags.Items.SEEDS,
+                    CommonTradeTags.common("seeds"),
                     CommonTradeTags.commonTrades("wandering_trader/seeds")),
             3,
             1,
