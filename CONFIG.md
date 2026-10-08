@@ -74,7 +74,7 @@ tagBlacklist = ["examplemod:not_for_traders", "#c:hidden_from_recipe_viewers"]
 
 Malformed blacklist entries are ignored and logged.
 
-The built-in `commontrades:wandering_trader/blacklist` item tag and Forge hidden-from-recipe-viewers tag are always respected.
+The built-in `commontrades:wandering_trader/blacklist` item tag is always respected.
 
 ## Server Authority
 

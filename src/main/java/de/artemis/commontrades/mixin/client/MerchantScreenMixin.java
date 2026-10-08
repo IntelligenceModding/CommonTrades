@@ -17,14 +17,14 @@ abstract class MerchantScreenMixin {
     private static final int TRADE_BUTTON_WIDTH = 88;
     private static final int TRADE_BUTTON_HEIGHT = 20;
 
-    @Inject(method = "renderButtonArrows", at = @At("RETURN"))
+    @Inject(method = {"renderButtonArrows", "m_280526_"}, at = @At("RETURN"), remap = false)
     private void commontrades$renderOfferMarker(
             GuiGraphics guiGraphics,
             MerchantOffer merchantOffer,
             int posX,
             int posY,
             CallbackInfo callbackInfo) {
-        MerchantMenu menu = (MerchantMenu) ((AbstractContainerScreenAccessor) this).commontrades$getMenu();
+        MerchantMenu menu = ((MerchantScreen) (Object) this).getMenu();
         if (CommonTradesClientConfig.visualIndicators() && CommonTradeClientOfferMarkers.isMarked(menu, merchantOffer)) {
             int buttonX = posX + TRADE_BUTTON_X;
             int buttonY = posY - 1;

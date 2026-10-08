@@ -25,6 +25,6 @@ public final class CommonTradeTags {
     }
 
     private static TagKey<Item> itemTag(String namespace, String path) {
-        return TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(namespace, path));
+        return TagKey.create(Registries.ITEM, new ResourceLocation(namespace, path));
     }
 }

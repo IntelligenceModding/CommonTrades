@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ServerPlayer.class)
 abstract class ServerPlayerMixin {
-    @Inject(method = "sendMerchantOffers", at = @At("TAIL"))
+    @Inject(method = {"sendMerchantOffers", "m_7662_"}, at = @At("TAIL"), remap = false)
     private void commontrades$syncCommonTradeOfferIndexes(
             int containerId,
             MerchantOffers offers,

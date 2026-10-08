@@ -71,7 +71,7 @@ final class CommonTradesConfigScreen extends Screen {
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
+        renderBackground(guiGraphics);
         int left = Math.max(8, (this.width - ROW_WIDTH) / 2);
         int top = Math.max(42, this.height / 2 - 72);
 
@@ -80,6 +80,7 @@ final class CommonTradesConfigScreen extends Screen {
         drawLabel(guiGraphics, "visualIndicators", left, top + 6);
         drawLabel(guiGraphics, "outlineOpacity", left, top + ROW_HEIGHT + 6);
         drawLabel(guiGraphics, "outlineColor", left, top + ROW_HEIGHT * 2 + 6);
+        super.render(guiGraphics, mouseX, mouseY, partialTick);
 
         if (!CommonTradesClientConfig.isColorCode(this.outlineColor)) {
             guiGraphics.drawString(this.font, INVALID_COLOR, left, top + ROW_HEIGHT * 3 + 8, ERROR_COLOR);

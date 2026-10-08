@@ -12,6 +12,7 @@ import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -22,11 +23,11 @@ public final class CommonTrades {
     public static final String MOD_ID = "commontrades";
     public static final Logger LOGGER = LogUtils.getLogger();
 
-    public CommonTrades(FMLJavaModLoadingContext context) {
-        IEventBus modEventBus = context.getModEventBus();
-        context.registerConfig(ModConfig.Type.SERVER, CommonTradesConfig.SPEC);
-        context.registerConfig(ModConfig.Type.CLIENT, CommonTradesClientConfig.SPEC);
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> CommonTradesClientSetup.registerConfigScreen(context));
+    public CommonTrades() {
+        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, CommonTradesConfig.SPEC);
+        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, CommonTradesClientConfig.SPEC);
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> CommonTradesClientSetup::registerConfigScreen);
         CommonTradesNetwork.registerPayloads();
         modEventBus.addListener(TradePoolCache::onConfigLoading);
         modEventBus.addListener(TradePoolCache::onConfigReloading);

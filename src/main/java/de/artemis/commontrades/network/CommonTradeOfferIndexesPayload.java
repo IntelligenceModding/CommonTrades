@@ -6,7 +6,7 @@ import net.minecraft.resources.ResourceLocation;
 
 public record CommonTradeOfferIndexesPayload(int containerId, int[] offerIndexes) {
     public static final ResourceLocation CHANNEL =
-            ResourceLocation.fromNamespaceAndPath(CommonTrades.MOD_ID, "main");
+            new ResourceLocation(CommonTrades.MOD_ID, "main");
 
     private static final int MAX_MERCHANT_OFFERS = 64;
 
