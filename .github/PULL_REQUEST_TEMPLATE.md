@@ -16,9 +16,9 @@ Explain the purpose of the change rather than only listing modified files.
 <!--
 Example:
 
-- Minecraft version: 26.1.2
+- Minecraft version: 26.1.1
 - Mod loader: NeoForge
-- Target branch: 26.1-neoforge
+- Target branch: 26.1.1-neoforge
 -->
 
 ## Changes

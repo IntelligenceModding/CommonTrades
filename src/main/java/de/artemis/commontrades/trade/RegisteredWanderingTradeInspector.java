@@ -8,8 +8,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import net.minecraft.core.Holder;
-import net.minecraft.core.Registry;
-import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
@@ -24,7 +23,6 @@ import net.minecraft.world.item.trading.VillagerTrade;
 import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
-import org.jspecify.annotations.Nullable;
 
 public final class RegisteredWanderingTradeInspector {
     private static final List<WanderingTradeSet> WANDERING_TRADE_SETS = List.of(
@@ -35,26 +33,26 @@ public final class RegisteredWanderingTradeInspector {
     private RegisteredWanderingTradeInspector() {
     }
 
-    public static Set<Item> registeredResultItems(@Nullable RegistryAccess registries) {
+    public static Set<Item> registeredResultItems(HolderLookup.Provider registries) {
         return wanderingTrades(registries).stream()
                 .map(InspectedTrade::item)
                 .collect(Collectors.toUnmodifiableSet());
     }
 
-    public static List<InspectedTrade> wanderingTrades(@Nullable RegistryAccess registries) {
+    public static List<InspectedTrade> wanderingTrades(HolderLookup.Provider registries) {
         if (registries == null) {
             return List.of();
         }
 
-        Optional<Registry<TradeSet>> tradeSetRegistry = registries.lookup(Registries.TRADE_SET);
+        Optional<? extends HolderLookup.RegistryLookup<TradeSet>> tradeSetRegistry = registries.lookup(Registries.TRADE_SET);
         if (tradeSetRegistry.isEmpty()) {
             return List.of();
         }
 
         List<InspectedTrade> trades = new ArrayList<>();
         for (WanderingTradeSet wanderingTradeSet : WANDERING_TRADE_SETS) {
-            tradeSetRegistry.get().getOptional(wanderingTradeSet.key()).ifPresent(tradeSet -> {
-                for (Holder<VillagerTrade> tradeHolder : tradeSet.getTrades()) {
+            tradeSetRegistry.get().get(wanderingTradeSet.key()).ifPresent(tradeSetHolder -> {
+                for (Holder<VillagerTrade> tradeHolder : tradeSetHolder.value().getTrades()) {
                     inspectTrade(wanderingTradeSet.label(), tradeHolder).ifPresent(trades::add);
                 }
             });
