@@ -14,7 +14,7 @@
 
 ## Config Files
 
-The server config is registered as a NeoForge server config. In a running world it is normally written as:
+The server config is registered as a Forge server config. In a running world it is normally written as:
 
 ```text
 <world>/serverconfig/commontrades-server.toml
@@ -28,7 +28,9 @@ config/commontrades-client.toml
 
 On a dedicated server, only the server's `commontrades-server.toml` controls generated trades.
 
-In singleplayer, the loaded world's server config controls gameplay. NeoForge's config screen can edit the loaded world's server config when available.
+In singleplayer, the loaded world's server config controls gameplay. Forge config tools can edit the loaded world's server config when available.
+
+The Forge Mods screen config button opens Common Trades' client visual-marker settings. Server-authoritative gameplay settings remain in the world or dedicated-server `commontrades-server.toml` file.
 
 ## Server Config Sections
 
@@ -72,7 +74,7 @@ tagBlacklist = ["examplemod:not_for_traders", "#c:hidden_from_recipe_viewers"]
 
 Malformed blacklist entries are ignored and logged.
 
-The built-in `commontrades:wandering_trader/blacklist` item tag and NeoForge hidden-from-recipe-viewers tag are always respected.
+The built-in `commontrades:wandering_trader/blacklist` item tag and Forge hidden-from-recipe-viewers tag are always respected.
 
 ## Server Authority
 
@@ -85,6 +87,8 @@ Client-side settings do not affect trade contents, prices, availability, or serv
 ## Client Config
 
 Client settings only affect local Wandering Trader GUI rendering.
+
+These settings can be edited from the Forge Mods screen config button or directly in `config/commontrades-client.toml`.
 
 | Section | Key | Default | Valid range | Meaning |
 | --- | --- | --- | --- | --- |

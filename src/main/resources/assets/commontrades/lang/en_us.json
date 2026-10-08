@@ -1,6 +1,7 @@
 {
   "mod.commontrades": "Common Trades",
   "commontrades.configuration.title": "%s Configuration",
+  "commontrades.configuration.save": "Save",
   "commontrades.configuration.general": "General",
   "commontrades.configuration.general.tooltip": "Server-authoritative gameplay settings. Remote players cannot change a server's trades from their client.",
   "commontrades.configuration.general.button": "Edit",
@@ -45,5 +46,6 @@
   "commontrades.configuration.visualMarkers.outlineOpacity.tooltip": "Opacity percentage for the Common Trades trade outline.",
   "commontrades.configuration.visualMarkers.outlineColor": "Outline Color",
   "commontrades.configuration.visualMarkers.outlineColor.tooltip": "RGB hex color for the Common Trades trade outline, such as #00D26A.",
+  "commontrades.configuration.visualMarkers.outlineColor.invalid": "Use #RRGGBB, RRGGBB, or 0xRRGGBB.",
   "commontrades.tooltip.added_by_common_trades": "Added by Common Trades"
 }

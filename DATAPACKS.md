@@ -37,15 +37,15 @@ Use `/reload` after changing datapack tags.
 
 ## Discovery Tags
 
-Common Trades discovers eligible items from normal Minecraft tags, common `c` tags, and Common Trades tags.
+Common Trades discovers eligible items from normal Minecraft tags, common `c` tags, legacy Forge `forge` tags, and Common Trades tags.
 
 | Category | Source tags | Selection weight | Default output | Default max uses |
 | --- | --- | --- | --- | --- |
-| Saplings | `minecraft:saplings`, `c:saplings`, `commontrades:wandering_trader/saplings` | `1` | `1` | `8` |
-| Flowers | `minecraft:small_flowers`, `c:flowers`, `commontrades:wandering_trader/flowers` | `3` | `1` | `12` |
-| Mushrooms | `c:mushrooms`, `commontrades:wandering_trader/mushrooms` | `2` | `1` | `4` |
-| Seeds | `minecraft:villager_plantable_seeds`, `c:seeds`, `commontrades:wandering_trader/seeds` | `3` | `1` to `3` | `12` |
-| Small plants | `c:small_plants`, `c:vines`, `c:mosses`, `commontrades:wandering_trader/small_plants` | `2` | `1` | `8` |
+| Saplings | `minecraft:saplings`, `c:saplings`, `forge:saplings`, `commontrades:wandering_trader/saplings` | `1` | `1` | `8` |
+| Flowers | `minecraft:flowers`, `minecraft:small_flowers`, `c:flowers`, `forge:flowers`, `commontrades:wandering_trader/flowers` | `3` | `1` | `12` |
+| Mushrooms | `c:mushrooms`, `forge:mushrooms`, `commontrades:wandering_trader/mushrooms` | `2` | `1` | `4` |
+| Seeds | `minecraft:villager_plantable_seeds`, `c:seeds`, `forge:seeds`, `commontrades:wandering_trader/seeds` | `3` | `1` to `3` | `12` |
+| Small plants | `c:small_plants`, `c:vines`, `c:mosses`, `forge:small_plants`, `forge:vines`, `forge:mosses`, `commontrades:wandering_trader/small_plants` | `2` | `1` | `8` |
 
 Only modded items are eligible. Items in the `minecraft` namespace are ignored even if they appear in a Common Trades tag.
 
@@ -110,10 +110,10 @@ Common Trades excludes:
 - items with creative slot lock data;
 - items with hidden tooltip data;
 - items in `commontrades:wandering_trader/blacklist`;
-- items in NeoForge's hidden-from-recipe-viewers tag;
+- items in Forge's hidden-from-recipe-viewers tag;
 - items blocked by the server config item, mod, or tag blacklists.
 
-Registered trade detection covers vanilla trader listings and NeoForge `BasicItemListing` entries, which are commonly used by mods when adding simple item-for-emerald offers.
+Registered trade detection covers vanilla trader listings and Forge-style simple item listing entries when their result and emerald cost can be inspected safely.
 
 If another mod uses a custom dynamic trade factory whose result item cannot be inspected safely, Common Trades may not be able to exclude that item during discovery. The same-trader duplicate cleanup still removes Common Trades offers when the current trader already selected an external offer with the same result item.
 

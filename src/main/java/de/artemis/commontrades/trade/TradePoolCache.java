@@ -14,6 +14,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
@@ -23,16 +24,17 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.trading.ItemCost;
 import net.minecraft.world.item.trading.MerchantOffer;
-import net.neoforged.neoforge.common.Tags;
-import net.neoforged.neoforge.event.TagsUpdatedEvent;
-import net.neoforged.fml.config.ModConfig;
-import net.neoforged.fml.event.config.ModConfigEvent;
+import net.minecraftforge.common.Tags;
+import net.minecraftforge.event.TagsUpdatedEvent;
+import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.event.config.ModConfigEvent;
 
 public final class TradePoolCache {
     private static final float PRICE_MULTIPLIER = 0.05F;
     private static final int VILLAGER_XP = 1;
 
     private static Map<TradeCategory, List<TradeEntry>> entriesByCategory = emptyPools();
+    private static RegistryAccess lastRegistryAccess = RegistryAccess.EMPTY;
     private static boolean built;
 
     private TradePoolCache() {
@@ -54,11 +56,17 @@ public final class TradePoolCache {
 
     private static void onConfigChanged(ModConfigEvent event) {
         if (CommonTrades.MOD_ID.equals(event.getConfig().getModId()) && event.getConfig().getType() == ModConfig.Type.SERVER && built) {
-            rebuild(RegistryAccess.EMPTY);
+            rebuild(lastRegistryAccess);
         }
     }
 
     public static synchronized void rebuild(RegistryAccess registryAccess) {
+        if (registryAccess.registry(Registries.ITEM).isPresent()) {
+            lastRegistryAccess = registryAccess;
+        }
+        net.minecraft.core.Registry<Item> itemRegistry = registryAccess
+                .registry(Registries.ITEM)
+                .orElse(BuiltInRegistries.ITEM);
         Map<TradeCategory, List<TradeEntry>> rebuilt = new EnumMap<>(TradeCategory.class);
         Set<ResourceLocation> itemBlacklist = CommonTradesConfig.itemBlacklist();
         Set<String> modBlacklist = CommonTradesConfig.modBlacklist();
@@ -69,9 +77,9 @@ public final class TradePoolCache {
         for (TradeCategory category : TradeCategory.values()) {
             if (CommonTradesConfig.enabled() && CommonTradesConfig.isCategoryEnabled(category)) {
                 for (TagKey<Item> sourceTag : category.sourceTags()) {
-                    for (Holder<Item> holder : BuiltInRegistries.ITEM.getTagOrEmpty(sourceTag)) {
+                    for (Holder<Item> holder : itemRegistry.getTagOrEmpty(sourceTag)) {
                         Item item = holder.value();
-                        ResourceLocation id = BuiltInRegistries.ITEM.getKey(item);
+                        ResourceLocation id = itemRegistry.getKey(item);
                         if (isEligible(holder, item, id, itemBlacklist, modBlacklist, tagBlacklist, registeredWanderingTradeItems)) {
                             discovered.putIfAbsent(id, new TradeEntry(category, item, id));
                         }

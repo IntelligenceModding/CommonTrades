@@ -20,6 +20,10 @@ public final class CommonTradeTags {
         return itemTag("c", path);
     }
 
+    static TagKey<Item> forge(String path) {
+        return itemTag("forge", path);
+    }
+
     private static TagKey<Item> itemTag(String namespace, String path) {
         return TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(namespace, path));
     }

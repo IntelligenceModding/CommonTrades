@@ -27,6 +27,7 @@ public final class CommonTradeOfferManager {
 
         MerchantOffers offers = trader.getOffers();
         removeOwnedCollisions(offers);
+        TradePoolCache.ensureBuilt(trader.registryAccess());
 
         int targetCount = CommonTradesConfig.extraTradesPerTrader();
         int ownedCount = countOwnedOffers(offers);

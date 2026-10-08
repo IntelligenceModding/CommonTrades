@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 abstract class WanderingTraderMixin {
     @Inject(method = "updateTrades", at = @At("RETURN"))
     private void commontrades$finalizeGeneratedOffers(CallbackInfo callbackInfo) {
-        // NeoForge exposes registration-time trade events, but no post-generation event with final MerchantOffers.
+        // Forge exposes registration-time trade events, but no post-generation event with final MerchantOffers.
         // This targeted hook lets Common Trades yield to dynamically generated vanilla/modded offers without
         // overwriting or inspecting third-party ItemListing internals.
         CommonTradeOfferManager.finalizeOffers((WanderingTrader) (Object) this);
