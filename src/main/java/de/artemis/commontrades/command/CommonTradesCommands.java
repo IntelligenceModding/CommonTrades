@@ -36,7 +36,7 @@ public final class CommonTradesCommands {
                                         .executes(context -> showTrades(context, "vanilla", IntegerArgumentType.getInteger(context, "page")))))
                         .then(Commands.argument("modid", StringArgumentType.word())
                                 .suggests((context, builder) -> SharedSuggestionProvider.suggest(
-                                        WanderingTradeDebugReport.suggestedFilters(),
+                                        WanderingTradeDebugReport.suggestedFilters(context.getSource().registryAccess()),
                                         builder))
                                 .executes(context -> showTrades(context, StringArgumentType.getString(context, "modid"), 1))
                                 .then(Commands.argument("page", IntegerArgumentType.integer(1))
@@ -47,7 +47,7 @@ public final class CommonTradesCommands {
     }
 
     private static int showTrades(CommandContext<CommandSourceStack> context, String filter, int page) {
-        WanderingTradeDebugReport report = WanderingTradeDebugReport.create();
+        WanderingTradeDebugReport report = WanderingTradeDebugReport.create(context.getSource().registryAccess());
         for (String line : report.format(filter, page)) {
             context.getSource().sendSuccess(() -> Component.literal(line), false);
         }

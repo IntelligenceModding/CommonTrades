@@ -2,132 +2,142 @@ package de.artemis.commontrades.trade;
 
 import de.artemis.commontrades.CommonTrades;
 import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.entity.npc.villager.VillagerTrades;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
-import org.apache.commons.lang3.tuple.Pair;
+import net.minecraft.world.item.trading.TradeCost;
+import net.minecraft.world.item.trading.TradeSet;
+import net.minecraft.world.item.trading.TradeSets;
+import net.minecraft.world.item.trading.VillagerTrade;
+import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
+import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
+import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
+import org.jspecify.annotations.Nullable;
 
 public final class RegisteredWanderingTradeInspector {
+    private static final List<WanderingTradeSet> WANDERING_TRADE_SETS = List.of(
+            new WanderingTradeSet("Buying", TradeSets.WANDERING_TRADER_BUYING),
+            new WanderingTradeSet("Uncommon", TradeSets.WANDERING_TRADER_UNCOMMON),
+            new WanderingTradeSet("Common", TradeSets.WANDERING_TRADER_COMMON));
+
     private RegisteredWanderingTradeInspector() {
     }
 
-    public static Set<Item> registeredResultItems() {
-        Set<Item> items = new HashSet<>();
-        wanderingTradeListings().forEach(tradeListings -> {
-            for (VillagerTrades.ItemListing listing : tradeListings) {
-                inspectKnownListing(listing).map(InspectedOffer::item).ifPresent(items::add);
-            }
-        });
-        return Set.copyOf(items);
+    public static Set<Item> registeredResultItems(@Nullable RegistryAccess registries) {
+        return wanderingTrades(registries).stream()
+                .map(InspectedTrade::item)
+                .collect(Collectors.toUnmodifiableSet());
     }
 
-    public static Optional<InspectedOffer> inspectKnownListing(VillagerTrades.ItemListing listing) {
-        String className = listing.getClass().getName();
-        try {
-            if (className.equals("net.minecraft.world.entity.npc.villager.VillagerTrades$ItemsForEmeralds")) {
-                ItemStack result = copyStack(field(listing, "itemStack", ItemStack.class));
-                return knownOffer(result, field(listing, "emeraldCost", Integer.class), field(listing, "maxUses", Integer.class), "");
-            }
-            if (className.equals("net.minecraft.world.entity.npc.villager.VillagerTrades$ItemsAndEmeraldsToItems")) {
-                ItemStack result = copyStack(field(listing, "toItem", ItemStack.class));
-                return knownOffer(result, field(listing, "emeraldCost", Integer.class), field(listing, "maxUses", Integer.class), "");
-            }
-            if (className.equals("net.minecraft.world.entity.npc.villager.VillagerTrades$SuspiciousStewForEmerald")) {
-                return knownOffer(new ItemStack(Items.SUSPICIOUS_STEW), 1, 12, "");
-            }
-            if (className.equals("net.minecraft.world.entity.npc.villager.VillagerTrades$TippedArrowForItemsAndEmeralds")) {
-                ItemStack result = copyStack(field(listing, "toItem", ItemStack.class));
-                result.setCount(field(listing, "toCount", Integer.class));
-                return knownOffer(result, field(listing, "emeraldCost", Integer.class), field(listing, "maxUses", Integer.class), "dynamic potion");
-            }
-            if (listing instanceof net.neoforged.neoforge.common.BasicItemListing) {
-                ItemStack result = copyStack(field(listing, "forSale", ItemStack.class));
-                Integer emeraldCost = emeraldCostFromBasicListing(listing);
-                if (emeraldCost == null) {
-                    return Optional.empty();
-                }
-                return knownOffer(result, emeraldCost, field(listing, "maxTrades", Integer.class), "");
-            }
-        } catch (ReflectiveOperationException | ClassCastException exception) {
-            CommonTrades.LOGGER.debug("Could not inspect Wandering Trader trade listing {}", listing.getClass().getName(), exception);
+    public static List<InspectedTrade> wanderingTrades(@Nullable RegistryAccess registries) {
+        if (registries == null) {
+            return List.of();
         }
-        return Optional.empty();
-    }
 
-    public static Set<VillagerTrades.ItemListing> vanillaListings() {
-        Set<VillagerTrades.ItemListing> listings = new HashSet<>();
-        try {
-            Class<?> managerClass = Class.forName("net.neoforged.neoforge.common.VillagerTradingManager");
-            Field field = managerClass.getDeclaredField("WANDERER_TRADES");
-            field.setAccessible(true);
-            @SuppressWarnings("unchecked")
-            List<Pair<VillagerTrades.ItemListing[], Integer>> vanillaTrades =
-                    (List<Pair<VillagerTrades.ItemListing[], Integer>>) field.get(null);
-            for (Pair<VillagerTrades.ItemListing[], Integer> tradeGroup : vanillaTrades) {
-                listings.addAll(Arrays.asList(tradeGroup.getLeft()));
-            }
-        } catch (ReflectiveOperationException | ClassCastException exception) {
-            CommonTrades.LOGGER.debug("Could not inspect vanilla Wandering Trader trade baseline.", exception);
-            wanderingTradeListings().forEach(tradeListings -> {
-                for (VillagerTrades.ItemListing listing : tradeListings) {
-                    if (listing.getClass().getName().startsWith("net.minecraft.")) {
-                        listings.add(listing);
-                    }
+        Optional<Registry<TradeSet>> tradeSetRegistry = registries.lookup(Registries.TRADE_SET);
+        if (tradeSetRegistry.isEmpty()) {
+            return List.of();
+        }
+
+        List<InspectedTrade> trades = new ArrayList<>();
+        for (WanderingTradeSet wanderingTradeSet : WANDERING_TRADE_SETS) {
+            tradeSetRegistry.get().getOptional(wanderingTradeSet.key()).ifPresent(tradeSet -> {
+                for (Holder<VillagerTrade> tradeHolder : tradeSet.getTrades()) {
+                    inspectTrade(wanderingTradeSet.label(), tradeHolder).ifPresent(trades::add);
                 }
             });
         }
-        return listings;
+        return List.copyOf(trades);
     }
 
-    public static List<VillagerTrades.ItemListing[]> wanderingTradeListings() {
-        return VillagerTrades.WANDERING_TRADER_TRADES.stream()
-                .map(Pair::getLeft)
-                .toList();
-    }
+    private static Optional<InspectedTrade> inspectTrade(String group, Holder<VillagerTrade> tradeHolder) {
+        try {
+            VillagerTrade trade = tradeHolder.value();
+            ItemStackTemplate result = field(trade, "gives", ItemStackTemplate.class);
+            Item item = result.item().value();
+            Identifier resultId = result.item()
+                    .unwrapKey()
+                    .map(ResourceKey::identifier)
+                    .orElseGet(() -> BuiltInRegistries.ITEM.getKey(item));
+            if (resultId == null || item == Items.AIR) {
+                return Optional.empty();
+            }
 
-    private static Optional<InspectedOffer> knownOffer(ItemStack result, int emeraldCost, int maxUses, String note) {
-        if (result.isEmpty()) {
+            TradeCost wants = field(trade, "wants", TradeCost.class);
+            Optional<TradeCost> additionalWants = optionalField(trade, "additionalWants", TradeCost.class);
+            NumberProvider maxUses = field(trade, "maxUses", NumberProvider.class);
+            List<LootItemFunction> modifiers = listField(trade, "givenItemModifiers", LootItemFunction.class);
+            String note = modifiers.isEmpty() ? "" : "modified result";
+
+            return Optional.of(new InspectedTrade(
+                    group,
+                    tradeHolder.unwrapKey().map(ResourceKey::identifier),
+                    resultId,
+                    item,
+                    Integer.toString(result.count()),
+                    emeraldCost(wants, additionalWants),
+                    numberProvider(maxUses),
+                    note));
+        } catch (ReflectiveOperationException | ClassCastException exception) {
+            CommonTrades.LOGGER.debug("Could not inspect Wandering Trader trade {}", tradeHolder.getRegisteredName(), exception);
             return Optional.empty();
         }
-        Identifier resultId = BuiltInRegistries.ITEM.getKey(result.getItem());
-        if (resultId == null) {
+    }
+
+    private static String emeraldCost(TradeCost wants, Optional<TradeCost> additionalWants) {
+        if (wants.item().value() == Items.EMERALD) {
+            return numberProvider(wants.count());
+        }
+        if (additionalWants.isPresent() && additionalWants.get().item().value() == Items.EMERALD) {
+            return numberProvider(additionalWants.get().count());
+        }
+        return "other";
+    }
+
+    private static String numberProvider(NumberProvider numberProvider) {
+        if (numberProvider instanceof ConstantValue constantValue) {
+            float value = constantValue.value();
+            if (value == Math.round(value)) {
+                return Integer.toString(Math.round(value));
+            }
+            return Float.toString(value);
+        }
+        return "dynamic";
+    }
+
+    private static <T> Optional<T> optionalField(Object target, String name, Class<T> type) throws ReflectiveOperationException {
+        Optional<?> value = field(target, name, Optional.class);
+        if (value.isEmpty()) {
             return Optional.empty();
         }
-        return Optional.of(new InspectedOffer(resultId, result.getItem(), result.getCount(), emeraldCost, maxUses, note));
+        return Optional.of(type.cast(value.get()));
     }
 
-    private static Integer emeraldCostFromBasicListing(VillagerTrades.ItemListing listing) throws ReflectiveOperationException {
-        ItemStack price = field(listing, "price", ItemStack.class);
-        ItemStack price2 = field(listing, "price2", ItemStack.class);
-        if (price.is(Items.EMERALD)) {
-            return price.getCount();
+    private static <T> List<T> listField(Object target, String name, Class<T> type) throws ReflectiveOperationException {
+        List<?> values = field(target, name, List.class);
+        List<T> castValues = new ArrayList<>(values.size());
+        for (Object value : values) {
+            castValues.add(type.cast(value));
         }
-        if (price2.is(Items.EMERALD)) {
-            return price2.getCount();
-        }
-        return null;
-    }
-
-    private static ItemStack copyStack(ItemStack stack) {
-        return stack.copy();
+        return List.copyOf(castValues);
     }
 
     private static <T> T field(Object target, String name, Class<T> type) throws ReflectiveOperationException {
         Field field = findField(target.getClass(), name);
         field.setAccessible(true);
-        Object value = field.get(target);
-        if (type == Integer.class && value instanceof Integer integer) {
-            return type.cast(integer);
-        }
-        return type.cast(value);
+        return type.cast(field.get(target));
     }
 
     private static Field findField(Class<?> type, String name) throws NoSuchFieldException {
@@ -142,6 +152,17 @@ public final class RegisteredWanderingTradeInspector {
         throw new NoSuchFieldException(name);
     }
 
-    public record InspectedOffer(Identifier resultId, Item item, int amount, int emeraldCost, int maxUses, String note) {
+    public record InspectedTrade(
+            String group,
+            Optional<Identifier> tradeId,
+            Identifier resultId,
+            Item item,
+            String amount,
+            String emeraldCost,
+            String maxUses,
+            String note) {
+    }
+
+    private record WanderingTradeSet(String label, ResourceKey<TradeSet> key) {
     }
 }

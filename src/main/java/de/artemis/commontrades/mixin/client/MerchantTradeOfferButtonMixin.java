@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.MerchantScreen;
@@ -30,8 +30,8 @@ abstract class MerchantTradeOfferButtonMixin {
     @Final
     private MerchantScreen this$0;
 
-    @Inject(method = "renderToolTip", at = @At("HEAD"), cancellable = true)
-    private void commontrades$renderMarkedResultTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY, CallbackInfo callbackInfo) {
+    @Inject(method = "extractToolTip", at = @At("HEAD"), cancellable = true)
+    private void commontrades$renderMarkedResultTooltip(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, CallbackInfo callbackInfo) {
         if (!CommonTradesClientConfig.visualIndicators()) {
             return;
         }

@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -33,14 +34,17 @@ public final class TradePoolCache {
     private static final int VILLAGER_XP = 1;
 
     private static Map<TradeCategory, List<TradeEntry>> entriesByCategory = emptyPools();
+    private static RegistryAccess registryAccess;
     private static boolean built;
+    private static boolean dirty = true;
 
     private TradePoolCache() {
     }
 
     public static void onTagsUpdated(TagsUpdatedEvent event) {
-        if (event.getUpdateCause() == TagsUpdatedEvent.UpdateCause.SERVER_DATA_LOAD) {
-            rebuild();
+        if (event.shouldUpdateStaticData()) {
+            registryAccess = event.getRegistries();
+            markDirty();
         }
     }
 
@@ -53,9 +57,13 @@ public final class TradePoolCache {
     }
 
     private static void onConfigChanged(ModConfigEvent event) {
-        if (CommonTrades.MOD_ID.equals(event.getConfig().getModId()) && event.getConfig().getType() == ModConfig.Type.SERVER && built) {
-            rebuild();
+        if (CommonTrades.MOD_ID.equals(event.getConfig().getModId()) && event.getConfig().getType() == ModConfig.Type.SERVER) {
+            markDirty();
         }
+    }
+
+    private static synchronized void markDirty() {
+        dirty = true;
     }
 
     public static synchronized void rebuild() {
@@ -63,7 +71,7 @@ public final class TradePoolCache {
         Set<Identifier> itemBlacklist = CommonTradesConfig.itemBlacklist();
         Set<String> modBlacklist = CommonTradesConfig.modBlacklist();
         List<TagKey<Item>> tagBlacklist = CommonTradesConfig.tagBlacklist();
-        Set<Item> registeredWanderingTradeItems = RegisteredWanderingTradeInspector.registeredResultItems();
+        Set<Item> registeredWanderingTradeItems = RegisteredWanderingTradeInspector.registeredResultItems(registryAccess);
 
         Map<Identifier, TradeEntry> discovered = new LinkedHashMap<>();
         for (TradeCategory category : TradeCategory.values()) {
@@ -92,6 +100,7 @@ public final class TradePoolCache {
 
         entriesByCategory = Map.copyOf(rebuilt);
         built = true;
+        dirty = false;
         if (CommonTradesConfig.isLoaded()) {
             CommonTrades.LOGGER.info("Common Trades found {} eligible modded items across {} categories.", total, TradeCategory.values().length);
         } else {
@@ -100,7 +109,7 @@ public final class TradePoolCache {
     }
 
     public static synchronized void ensureBuilt() {
-        if (!built) {
+        if (!built || dirty) {
             rebuild();
         }
     }
@@ -110,6 +119,7 @@ public final class TradePoolCache {
     }
 
     public static synchronized Map<TradeCategory, List<TradeEntry>> snapshotEntriesByCategory() {
+        ensureBuilt();
         Map<TradeCategory, List<TradeEntry>> snapshot = new EnumMap<>(TradeCategory.class);
         for (TradeCategory category : TradeCategory.values()) {
             snapshot.put(category, List.copyOf(entriesByCategory.getOrDefault(category, List.of())));
@@ -123,6 +133,7 @@ public final class TradePoolCache {
             return offers;
         }
 
+        ensureBuilt();
         Set<Item> blockedItems = new HashSet<>(usedItems);
         while (offers.size() < maxOffers) {
             Optional<SelectedTrade> trade = createOffer(random, blockedItems, enabledFeatures);
@@ -170,6 +181,7 @@ public final class TradePoolCache {
     }
 
     static Optional<SelectedTrade> createOffer(RandomSource random, Set<Item> usedItems, FeatureFlagSet enabledFeatures) {
+        ensureBuilt();
         if (!CommonTradesConfig.enabled() || !hasEntries()) {
             return Optional.empty();
         }

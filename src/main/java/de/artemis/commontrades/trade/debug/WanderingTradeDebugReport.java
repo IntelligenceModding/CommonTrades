@@ -15,14 +15,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.entity.npc.villager.VillagerTrades;
 import net.neoforged.fml.ModList;
 
 public final class WanderingTradeDebugReport {
-    private static final int BUYING_TRADE_GROUP = 0;
-    private static final int RARE_TRADE_GROUP = 1;
-    private static final int GENERIC_TRADE_GROUP = 2;
     private static final int ENTRIES_PER_PAGE = 18;
     private static final String COMMON_TRADES_FILTER = CommonTrades.MOD_ID;
     private static final String VANILLA_FILTER = "vanilla";
@@ -37,15 +34,14 @@ public final class WanderingTradeDebugReport {
         this.resultCounts = resultCounts;
     }
 
-    public static WanderingTradeDebugReport create() {
+    public static WanderingTradeDebugReport create(RegistryAccess registries) {
         TradePoolCache.ensureBuilt();
 
-        Set<VillagerTrades.ItemListing> vanillaListings = vanillaListings();
         Map<String, TradeGroupBuilder> otherModGroups = new HashMap<>();
         TradeGroupBuilder vanilla = new TradeGroupBuilder(GroupKind.VANILLA, VANILLA_FILTER, "Vanilla");
         TradeGroupBuilder commonTrades = new TradeGroupBuilder(GroupKind.COMMON_TRADES, COMMON_TRADES_FILTER, "Common Trades");
 
-        collectRegisteredTrades(vanillaListings, vanilla, otherModGroups);
+        collectRegisteredTrades(registries, vanilla, otherModGroups);
         collectCommonTrades(commonTrades);
 
         List<TradeGroup> groups = new ArrayList<>();
@@ -65,8 +61,8 @@ public final class WanderingTradeDebugReport {
         return new WanderingTradeDebugReport(groups, resultCounts);
     }
 
-    public static Iterable<String> suggestedFilters() {
-        WanderingTradeDebugReport report = create();
+    public static Iterable<String> suggestedFilters(RegistryAccess registries) {
+        WanderingTradeDebugReport report = create(registries);
         Set<String> filters = new TreeSet<>();
         filters.add(VANILLA_FILTER);
         filters.add(COMMON_TRADES_FILTER);
@@ -126,40 +122,21 @@ public final class WanderingTradeDebugReport {
     }
 
     private static void collectRegisteredTrades(
-            Set<VillagerTrades.ItemListing> vanillaListings,
+            RegistryAccess registries,
             TradeGroupBuilder vanilla,
             Map<String, TradeGroupBuilder> otherModGroups) {
-        collectRegisteredTrades(BUYING_TRADE_GROUP, "Buying", vanillaListings, vanilla, otherModGroups);
-        collectRegisteredTrades(RARE_TRADE_GROUP, "Rare", vanillaListings, vanilla, otherModGroups);
-        collectRegisteredTrades(GENERIC_TRADE_GROUP, "Generic", vanillaListings, vanilla, otherModGroups);
-    }
-
-    private static void collectRegisteredTrades(
-            int groupIndex,
-            String label,
-            Set<VillagerTrades.ItemListing> vanillaListings,
-            TradeGroupBuilder vanilla,
-            Map<String, TradeGroupBuilder> otherModGroups) {
-        List<VillagerTrades.ItemListing[]> tradeGroups = RegisteredWanderingTradeInspector.wanderingTradeListings();
-        if (groupIndex >= tradeGroups.size()) {
-            return;
-        }
-
-        VillagerTrades.ItemListing[] listings = tradeGroups.get(groupIndex);
-        for (VillagerTrades.ItemListing listing : listings) {
-            DebugTrade trade = inspectListing(label, listing);
-            if (vanillaListings.contains(listing)) {
+        for (RegisteredWanderingTradeInspector.InspectedTrade inspectedTrade : RegisteredWanderingTradeInspector.wanderingTrades(registries)) {
+            DebugTrade trade = inspectedTrade(inspectedTrade);
+            String modId = inspectedTrade.tradeId()
+                    .map(Identifier::getNamespace)
+                    .orElseGet(() -> inspectedTrade.resultId().getNamespace());
+            if (OTHER_MODDED_MINECRAFT_ID.equals(modId)) {
                 vanilla.add(trade);
             } else {
-                String modId = trade.resultId()
-                        .map(Identifier::getNamespace)
-                        .orElse(UNKNOWN_MOD_ID);
                 if (CommonTrades.MOD_ID.equals(modId)) {
                     modId = UNKNOWN_MOD_ID;
                 }
-                String title = OTHER_MODDED_MINECRAFT_ID.equals(modId)
-                        ? "minecraft (mod-added)"
-                        : modDisplayName(modId);
+                String title = modDisplayName(modId);
                 otherModGroups.computeIfAbsent(modId, id -> new TradeGroupBuilder(GroupKind.OTHER_MOD, id, title)).add(trade);
             }
         }
@@ -181,33 +158,15 @@ public final class WanderingTradeDebugReport {
         }
     }
 
-    private static DebugTrade inspectListing(String rarity, VillagerTrades.ItemListing listing) {
-        Optional<RegisteredWanderingTradeInspector.InspectedOffer> offer =
-                RegisteredWanderingTradeInspector.inspectKnownListing(listing);
-        if (offer.isEmpty()) {
-            return new DebugTrade(
-                    rarity,
-                    Optional.empty(),
-                    "unknown",
-                    "unknown",
-                    "unknown",
-                    false,
-                    "dynamic/unknown: " + listing.getClass().getName());
-        }
-
-        RegisteredWanderingTradeInspector.InspectedOffer inspectedOffer = offer.get();
+    private static DebugTrade inspectedTrade(RegisteredWanderingTradeInspector.InspectedTrade inspectedTrade) {
         return new DebugTrade(
-                rarity,
-                Optional.of(inspectedOffer.resultId()),
-                Integer.toString(inspectedOffer.amount()),
-                Integer.toString(inspectedOffer.emeraldCost()),
-                Integer.toString(inspectedOffer.maxUses()),
+                inspectedTrade.group(),
+                Optional.of(inspectedTrade.resultId()),
+                inspectedTrade.amount(),
+                inspectedTrade.emeraldCost(),
+                inspectedTrade.maxUses(),
                 false,
-                inspectedOffer.note());
-    }
-
-    private static Set<VillagerTrades.ItemListing> vanillaListings() {
-        return RegisteredWanderingTradeInspector.vanillaListings();
+                inspectedTrade.note());
     }
 
     private List<TradeGroup> filteredGroups(String filter) {
