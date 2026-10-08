@@ -22,7 +22,7 @@ public final class CommonTradesClientConfig {
     }
 
     private CommonTradesClientConfig(ForgeConfigSpec.Builder builder) {
-        builder.translation("commontrades.configuration.visualMarkers").push("visualMarkers");
+        builder.push("visualMarkers");
         visualIndicators = builder
                 .translation("commontrades.configuration.visualMarkers.visualIndicators")
                 .comment("Client-side. Show Common Trades visual markers and the tooltip line in Wandering Trader trades.")
@@ -107,14 +107,14 @@ public final class CommonTradesClientConfig {
     }
 
     private static boolean get(ForgeConfigSpec.BooleanValue value) {
-        return SPEC.isLoaded() ? value.get() : value.getDefault();
+        return value.get();
     }
 
     private static int get(ForgeConfigSpec.IntValue value) {
-        return SPEC.isLoaded() ? value.get() : value.getDefault();
+        return value.get();
     }
 
     private static String get(ForgeConfigSpec.ConfigValue<String> value) {
-        return SPEC.isLoaded() ? value.get() : value.getDefault();
+        return value.get();
     }
 }

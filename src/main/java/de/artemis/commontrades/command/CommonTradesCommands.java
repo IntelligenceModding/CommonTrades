@@ -8,7 +8,7 @@ import de.artemis.commontrades.trade.debug.WanderingTradeDebugReport;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
-import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 
 public final class CommonTradesCommands {
@@ -51,7 +51,7 @@ public final class CommonTradesCommands {
     private static int showTrades(CommandContext<CommandSourceStack> context, String filter, int page) {
         WanderingTradeDebugReport report = WanderingTradeDebugReport.create(context.getSource().getServer().registryAccess());
         for (String line : report.format(filter, page)) {
-            context.getSource().sendSuccess(Component.literal(line), false);
+            context.getSource().sendSuccess(new TextComponent(line), false);
         }
         return report.filteredEntryCount(filter);
     }

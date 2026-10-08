@@ -11,6 +11,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.MerchantScreen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.inventory.MerchantMenu;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
@@ -44,7 +45,7 @@ abstract class MerchantTradeOfferButtonMixin {
 
         ItemStack result = menu.getOffers().get(offerIndex).getResult();
         List<Component> tooltip = new ArrayList<>(screen.getTooltipFromItem(result));
-        tooltip.add(Component.translatable("commontrades.tooltip.added_by_common_trades").withStyle(ChatFormatting.GRAY));
+        tooltip.add(new TranslatableComponent("commontrades.tooltip.added_by_common_trades").withStyle(ChatFormatting.GRAY));
         screen.renderComponentTooltip(poseStack, tooltip, mouseX, mouseY);
         callbackInfo.cancel();
     }

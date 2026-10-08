@@ -7,8 +7,9 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.Mth;
 
 final class CommonTradesConfigScreen extends Screen {
@@ -18,11 +19,11 @@ final class CommonTradesConfigScreen extends Screen {
     private static final int ROW_HEIGHT = 24;
     private static final int TEXT_COLOR = 0xE0E0E0;
     private static final int ERROR_COLOR = 0xFF5555;
-    private static final Component TITLE = Component.translatable("commontrades.configuration.title", Component.translatable("mod.commontrades"));
-    private static final Component VISUAL_MARKERS = Component.translatable("commontrades.configuration.visualMarkers");
-    private static final Component INVALID_COLOR = Component.translatable("commontrades.configuration.visualMarkers.outlineColor.invalid");
-    private static final Component SAVE = Component.translatable("commontrades.configuration.save");
-    private static final Component CANCEL = Component.translatable("gui.cancel");
+    private static final Component TITLE = new TranslatableComponent("commontrades.configuration.title", new TranslatableComponent("mod.commontrades"));
+    private static final Component VISUAL_MARKERS = new TranslatableComponent("commontrades.configuration.visualMarkers");
+    private static final Component INVALID_COLOR = new TranslatableComponent("commontrades.configuration.visualMarkers.outlineColor.invalid");
+    private static final Component SAVE = new TranslatableComponent("commontrades.configuration.save");
+    private static final Component CANCEL = new TranslatableComponent("gui.cancel");
 
     private final Screen parent;
     private boolean visualIndicators;
@@ -46,11 +47,11 @@ final class CommonTradesConfigScreen extends Screen {
         int controlX = left + LABEL_WIDTH + 10;
 
         addRenderableWidget(CycleButton.onOffBuilder(this.visualIndicators)
-                .create(controlX, top, CONTROL_WIDTH, 20, Component.translatable("commontrades.configuration.visualMarkers.visualIndicators"), (button, value) -> this.visualIndicators = value));
+                .create(controlX, top, CONTROL_WIDTH, 20, new TranslatableComponent("commontrades.configuration.visualMarkers.visualIndicators"), (button, value) -> this.visualIndicators = value));
 
         addRenderableWidget(new OpacitySlider(controlX, top + ROW_HEIGHT, CONTROL_WIDTH, 20, this.outlineOpacity));
 
-        this.outlineColorBox = new EditBox(this.font, controlX, top + ROW_HEIGHT * 2, CONTROL_WIDTH, 20, Component.translatable("commontrades.configuration.visualMarkers.outlineColor"));
+        this.outlineColorBox = new EditBox(this.font, controlX, top + ROW_HEIGHT * 2, CONTROL_WIDTH, 20, new TranslatableComponent("commontrades.configuration.visualMarkers.outlineColor"));
         this.outlineColorBox.setMaxLength(8);
         this.outlineColorBox.setValue(this.outlineColor);
         this.outlineColorBox.setResponder(value -> {
@@ -91,7 +92,7 @@ final class CommonTradesConfigScreen extends Screen {
     }
 
     private void drawLabel(PoseStack poseStack, String key, int x, int y) {
-        drawString(poseStack, this.font, Component.translatable("commontrades.configuration.visualMarkers." + key), x, y, TEXT_COLOR);
+        drawString(poseStack, this.font, new TranslatableComponent("commontrades.configuration.visualMarkers." + key), x, y, TEXT_COLOR);
     }
 
     private void updateSaveButton() {
@@ -107,15 +108,16 @@ final class CommonTradesConfigScreen extends Screen {
 
     private final class OpacitySlider extends AbstractSliderButton {
         private OpacitySlider(int x, int y, int width, int height, int initialValue) {
-            super(x, y, width, height, CommonComponents.EMPTY, Mth.clamp(initialValue, 0, 100) / 100.0);
+            super(x, y, width, height, TextComponent.EMPTY, Mth.clamp(initialValue, 0, 100) / 100.0);
             updateMessage();
         }
 
         @Override
         protected void updateMessage() {
-            setMessage(CommonComponents.optionNameValue(
-                    Component.translatable("commontrades.configuration.visualMarkers.outlineOpacity"),
-                    Component.literal(Integer.toString(CommonTradesConfigScreen.this.outlineOpacity) + "%")));
+            setMessage(new TranslatableComponent(
+                    "options.generic_value",
+                    new TranslatableComponent("commontrades.configuration.visualMarkers.outlineOpacity"),
+                    new TextComponent(Integer.toString(CommonTradesConfigScreen.this.outlineOpacity) + "%")));
         }
 
         @Override

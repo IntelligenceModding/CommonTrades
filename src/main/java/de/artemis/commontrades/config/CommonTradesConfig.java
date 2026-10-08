@@ -44,7 +44,7 @@ public final class CommonTradesConfig {
     }
 
     private CommonTradesConfig(ForgeConfigSpec.Builder builder) {
-        builder.translation("commontrades.configuration.general").push("general");
+        builder.push("general");
         enabled = builder
                 .translation("commontrades.configuration.general.enabled")
                 .comment("Server-authoritative. When false, Common Trades does not add Wandering Trader offers.")
@@ -55,7 +55,7 @@ public final class CommonTradesConfig {
                 .defineInRange("extraTradesPerTrader", 2, 0, 3);
         builder.pop();
 
-        builder.translation("commontrades.configuration.categories").push("categories");
+        builder.push("categories");
         enableSaplings = builder.translation("commontrades.configuration.categories.enableSaplings").comment("Server-authoritative. Enable tagged modded sapling trades.").define("enableSaplings", true);
         enableFlowers = builder.translation("commontrades.configuration.categories.enableFlowers").comment("Server-authoritative. Enable tagged modded flower trades.").define("enableFlowers", true);
         enableSeeds = builder.translation("commontrades.configuration.categories.enableSeeds").comment("Server-authoritative. Enable tagged modded seed trades.").define("enableSeeds", true);
@@ -63,7 +63,7 @@ public final class CommonTradesConfig {
         enableSmallPlants = builder.translation("commontrades.configuration.categories.enableSmallPlants").comment("Server-authoritative. Enable tagged modded small plant trades.").define("enableSmallPlants", true);
         builder.pop();
 
-        builder.translation("commontrades.configuration.pricing").push("pricing");
+        builder.push("pricing");
         saplingEmeraldCost = builder.translation("commontrades.configuration.pricing.saplingEmeraldCost").comment("Server-authoritative. Emerald cost for 1 sapling.").defineInRange("saplingEmeraldCost", 5, 1, 32);
         flowerEmeraldCost = builder.translation("commontrades.configuration.pricing.flowerEmeraldCost").comment("Server-authoritative. Emerald cost for 1 flower.").defineInRange("flowerEmeraldCost", 1, 1, 16);
         seedsEmeraldCost = builder.translation("commontrades.configuration.pricing.seedsEmeraldCost").comment("Server-authoritative. Emerald cost for 1-3 seeds.").defineInRange("seedsEmeraldCost", 1, 1, 16);
@@ -71,7 +71,7 @@ public final class CommonTradesConfig {
         smallPlantsEmeraldCost = builder.translation("commontrades.configuration.pricing.smallPlantsEmeraldCost").comment("Server-authoritative. Emerald cost for 1 small plant.").defineInRange("smallPlantsEmeraldCost", 1, 1, 16);
         builder.pop();
 
-        builder.translation("commontrades.configuration.blacklists").push("blacklists");
+        builder.push("blacklists");
         itemBlacklist = builder
                 .translation("commontrades.configuration.blacklists.itemBlacklist")
                 .comment("Server-authoritative. Item ids that Common Trades must never offer. Example: [\"examplemod:rare_seed\"]")
@@ -136,7 +136,7 @@ public final class CommonTradesConfig {
         Set<String> blacklist = new HashSet<>();
         for (String entry : get(INSTANCE.modBlacklist)) {
             String modId = entry.toLowerCase(Locale.ROOT);
-            if (!ResourceLocation.isValidNamespace(modId)) {
+            if (!isValidNamespace(modId)) {
                 CommonTrades.LOGGER.warn("Ignoring malformed Common Trades mod blacklist entry '{}'", entry);
                 continue;
             }
@@ -160,14 +160,31 @@ public final class CommonTradesConfig {
     }
 
     private static boolean get(ForgeConfigSpec.BooleanValue value) {
-        return SPEC.isLoaded() ? value.get() : value.getDefault();
+        return value.get();
     }
 
     private static int get(ForgeConfigSpec.IntValue value) {
-        return SPEC.isLoaded() ? value.get() : value.getDefault();
+        return value.get();
     }
 
     private static List<? extends String> get(ForgeConfigSpec.ConfigValue<List<? extends String>> value) {
-        return SPEC.isLoaded() ? value.get() : value.getDefault();
+        return value.get();
+    }
+
+    private static boolean isValidNamespace(String namespace) {
+        if (namespace.isBlank()) {
+            return false;
+        }
+        for (int index = 0; index < namespace.length(); index++) {
+            char character = namespace.charAt(index);
+            if ((character < 'a' || character > 'z')
+                    && (character < '0' || character > '9')
+                    && character != '_'
+                    && character != '-'
+                    && character != '.') {
+                return false;
+            }
+        }
+        return true;
     }
 }
