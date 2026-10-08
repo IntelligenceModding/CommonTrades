@@ -35,7 +35,6 @@ public final class CommonTradeOfferManager {
             List<MerchantOffer> additions = TradePoolCache.createOffers(
                     trader.getRandom(),
                     blockedItems,
-                    trader.level().enabledFeatures(),
                     targetCount - ownedCount);
 
             for (MerchantOffer addition : additions) {

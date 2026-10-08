@@ -7,43 +7,43 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-import net.minecraft.core.registries.Registries;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
-import net.neoforged.neoforge.common.ModConfigSpec;
+import net.minecraftforge.common.ForgeConfigSpec;
 import org.apache.commons.lang3.tuple.Pair;
 
 public final class CommonTradesConfig {
     public static final CommonTradesConfig INSTANCE;
-    public static final ModConfigSpec SPEC;
+    public static final ForgeConfigSpec SPEC;
 
-    private final ModConfigSpec.BooleanValue enabled;
-    private final ModConfigSpec.IntValue extraTradesPerTrader;
+    private final ForgeConfigSpec.BooleanValue enabled;
+    private final ForgeConfigSpec.IntValue extraTradesPerTrader;
 
-    private final ModConfigSpec.BooleanValue enableSaplings;
-    private final ModConfigSpec.BooleanValue enableFlowers;
-    private final ModConfigSpec.BooleanValue enableSeeds;
-    private final ModConfigSpec.BooleanValue enableMushrooms;
-    private final ModConfigSpec.BooleanValue enableSmallPlants;
+    private final ForgeConfigSpec.BooleanValue enableSaplings;
+    private final ForgeConfigSpec.BooleanValue enableFlowers;
+    private final ForgeConfigSpec.BooleanValue enableSeeds;
+    private final ForgeConfigSpec.BooleanValue enableMushrooms;
+    private final ForgeConfigSpec.BooleanValue enableSmallPlants;
 
-    private final ModConfigSpec.IntValue saplingEmeraldCost;
-    private final ModConfigSpec.IntValue flowerEmeraldCost;
-    private final ModConfigSpec.IntValue seedsEmeraldCost;
-    private final ModConfigSpec.IntValue mushroomsEmeraldCost;
-    private final ModConfigSpec.IntValue smallPlantsEmeraldCost;
+    private final ForgeConfigSpec.IntValue saplingEmeraldCost;
+    private final ForgeConfigSpec.IntValue flowerEmeraldCost;
+    private final ForgeConfigSpec.IntValue seedsEmeraldCost;
+    private final ForgeConfigSpec.IntValue mushroomsEmeraldCost;
+    private final ForgeConfigSpec.IntValue smallPlantsEmeraldCost;
 
-    private final ModConfigSpec.ConfigValue<List<? extends String>> itemBlacklist;
-    private final ModConfigSpec.ConfigValue<List<? extends String>> modBlacklist;
-    private final ModConfigSpec.ConfigValue<List<? extends String>> tagBlacklist;
+    private final ForgeConfigSpec.ConfigValue<List<? extends String>> itemBlacklist;
+    private final ForgeConfigSpec.ConfigValue<List<? extends String>> modBlacklist;
+    private final ForgeConfigSpec.ConfigValue<List<? extends String>> tagBlacklist;
 
     static {
-        Pair<CommonTradesConfig, ModConfigSpec> pair = new ModConfigSpec.Builder().configure(CommonTradesConfig::new);
+        Pair<CommonTradesConfig, ForgeConfigSpec> pair = new ForgeConfigSpec.Builder().configure(CommonTradesConfig::new);
         INSTANCE = pair.getLeft();
         SPEC = pair.getRight();
     }
 
-    private CommonTradesConfig(ModConfigSpec.Builder builder) {
+    private CommonTradesConfig(ForgeConfigSpec.Builder builder) {
         builder.translation("commontrades.configuration.general").push("general");
         enabled = builder
                 .translation("commontrades.configuration.general.enabled")
@@ -75,15 +75,15 @@ public final class CommonTradesConfig {
         itemBlacklist = builder
                 .translation("commontrades.configuration.blacklists.itemBlacklist")
                 .comment("Server-authoritative. Item ids that Common Trades must never offer. Example: [\"examplemod:rare_seed\"]")
-                .defineListAllowEmpty("itemBlacklist", List.of(), () -> "", value -> value instanceof String);
+                .defineListAllowEmpty(List.of("itemBlacklist"), () -> List.<String>of(), value -> value instanceof String);
         modBlacklist = builder
                 .translation("commontrades.configuration.blacklists.modBlacklist")
                 .comment("Server-authoritative. Mod ids/namespaces that Common Trades must never offer.")
-                .defineListAllowEmpty("modBlacklist", List.of(), () -> "", value -> value instanceof String);
+                .defineListAllowEmpty(List.of("modBlacklist"), () -> List.<String>of(), value -> value instanceof String);
         tagBlacklist = builder
                 .translation("commontrades.configuration.blacklists.tagBlacklist")
                 .comment("Server-authoritative. Item tag ids whose contents Common Trades must never offer. A leading # is optional.")
-                .defineListAllowEmpty("tagBlacklist", List.of(), () -> "", value -> value instanceof String);
+                .defineListAllowEmpty(List.of("tagBlacklist"), () -> List.<String>of(), value -> value instanceof String);
         builder.pop();
     }
 
@@ -154,20 +154,20 @@ public final class CommonTradesConfig {
                 CommonTrades.LOGGER.warn("Ignoring malformed Common Trades tag blacklist entry '{}'", entry);
                 continue;
             }
-            blacklist.add(TagKey.create(Registries.ITEM, id));
+            blacklist.add(TagKey.create(Registry.ITEM_REGISTRY, id));
         }
         return List.copyOf(blacklist);
     }
 
-    private static boolean get(ModConfigSpec.BooleanValue value) {
-        return SPEC.isLoaded() ? value.getAsBoolean() : value.getDefault();
+    private static boolean get(ForgeConfigSpec.BooleanValue value) {
+        return SPEC.isLoaded() ? value.get() : value.getDefault();
     }
 
-    private static int get(ModConfigSpec.IntValue value) {
-        return SPEC.isLoaded() ? value.getAsInt() : value.getDefault();
+    private static int get(ForgeConfigSpec.IntValue value) {
+        return SPEC.isLoaded() ? value.get() : value.getDefault();
     }
 
-    private static List<? extends String> get(ModConfigSpec.ConfigValue<List<? extends String>> value) {
+    private static List<? extends String> get(ForgeConfigSpec.ConfigValue<List<? extends String>> value) {
         return SPEC.isLoaded() ? value.get() : value.getDefault();
     }
 }

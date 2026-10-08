@@ -4,7 +4,7 @@ import java.util.List;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
-import net.neoforged.neoforge.common.Tags;
+import net.minecraftforge.common.Tags;
 
 /**
  * Declaration order is Common Trades' category priority when an item appears in multiple supported tags:
@@ -16,6 +16,7 @@ public enum TradeCategory {
             List.of(
                     ItemTags.SAPLINGS,
                     CommonTradeTags.common("saplings"),
+                    CommonTradeTags.forge("saplings"),
                     CommonTradeTags.commonTrades("wandering_trader/saplings")),
             1,
             1,
@@ -26,6 +27,7 @@ public enum TradeCategory {
             List.of(
                     ItemTags.SMALL_FLOWERS,
                     CommonTradeTags.common("flowers"),
+                    CommonTradeTags.forge("flowers"),
                     CommonTradeTags.commonTrades("wandering_trader/flowers")),
             3,
             1,
@@ -35,6 +37,8 @@ public enum TradeCategory {
             "mushrooms",
             List.of(
                     Tags.Items.MUSHROOMS,
+                    CommonTradeTags.common("mushrooms"),
+                    CommonTradeTags.forge("mushrooms"),
                     CommonTradeTags.commonTrades("wandering_trader/mushrooms")),
             2,
             1,
@@ -43,8 +47,10 @@ public enum TradeCategory {
     SEEDS(
             "seeds",
             List.of(
-                    ItemTags.VILLAGER_PLANTABLE_SEEDS,
+                    CommonTradeTags.minecraft("villager_plantable_seeds"),
                     Tags.Items.SEEDS,
+                    CommonTradeTags.common("seeds"),
+                    CommonTradeTags.forge("seeds"),
                     CommonTradeTags.commonTrades("wandering_trader/seeds")),
             3,
             1,
@@ -56,6 +62,9 @@ public enum TradeCategory {
                     CommonTradeTags.common("small_plants"),
                     CommonTradeTags.common("vines"),
                     CommonTradeTags.common("mosses"),
+                    CommonTradeTags.forge("small_plants"),
+                    CommonTradeTags.forge("vines"),
+                    CommonTradeTags.forge("mosses"),
                     CommonTradeTags.commonTrades("wandering_trader/small_plants")),
             2,
             1,

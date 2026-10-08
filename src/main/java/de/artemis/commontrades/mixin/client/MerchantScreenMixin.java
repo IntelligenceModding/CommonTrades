@@ -2,7 +2,8 @@ package de.artemis.commontrades.mixin.client;
 
 import de.artemis.commontrades.client.CommonTradeClientOfferMarkers;
 import de.artemis.commontrades.config.CommonTradesClientConfig;
-import net.minecraft.client.gui.GuiGraphics;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.screens.inventory.MerchantScreen;
 import net.minecraft.world.inventory.MerchantMenu;
 import net.minecraft.world.item.trading.MerchantOffer;
@@ -17,14 +18,14 @@ abstract class MerchantScreenMixin {
     private static final int TRADE_BUTTON_WIDTH = 88;
     private static final int TRADE_BUTTON_HEIGHT = 20;
 
-    @Inject(method = "renderButtonArrows", at = @At("RETURN"))
+    @Inject(method = {"renderButtonArrows", "m_99168_"}, at = @At("RETURN"), remap = false)
     private void commontrades$renderOfferMarker(
-            GuiGraphics guiGraphics,
+            PoseStack poseStack,
             MerchantOffer merchantOffer,
             int posX,
             int posY,
             CallbackInfo callbackInfo) {
-        MerchantMenu menu = (MerchantMenu) ((AbstractContainerScreenAccessor) this).commontrades$getMenu();
+        MerchantMenu menu = ((MerchantScreen) (Object) this).getMenu();
         if (CommonTradesClientConfig.visualIndicators() && CommonTradeClientOfferMarkers.isMarked(menu, merchantOffer)) {
             int buttonX = posX + TRADE_BUTTON_X;
             int buttonY = posY - 1;
@@ -33,10 +34,10 @@ abstract class MerchantScreenMixin {
             int right = buttonX + TRADE_BUTTON_WIDTH - 1;
             int bottom = buttonY + TRADE_BUTTON_HEIGHT - 1;
             int markerColor = CommonTradesClientConfig.outlineColor();
-            guiGraphics.fill(left, top, right, top + 1, markerColor);
-            guiGraphics.fill(left, bottom - 1, right, bottom, markerColor);
-            guiGraphics.fill(left, top, left + 1, bottom, markerColor);
-            guiGraphics.fill(right - 1, top, right, bottom, markerColor);
+            GuiComponent.fill(poseStack, left, top, right, top + 1, markerColor);
+            GuiComponent.fill(poseStack, left, bottom - 1, right, bottom, markerColor);
+            GuiComponent.fill(poseStack, left, top, left + 1, bottom, markerColor);
+            GuiComponent.fill(poseStack, right - 1, top, right, bottom, markerColor);
         }
     }
 }

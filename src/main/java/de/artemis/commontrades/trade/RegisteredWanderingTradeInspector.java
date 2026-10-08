@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.npc.VillagerTrades;
 import net.minecraft.world.item.Item;
@@ -47,7 +47,7 @@ public final class RegisteredWanderingTradeInspector {
                 result.setCount(field(listing, "toCount", Integer.class));
                 return knownOffer(result, field(listing, "emeraldCost", Integer.class), field(listing, "maxUses", Integer.class), "dynamic potion");
             }
-            if (listing instanceof net.neoforged.neoforge.common.BasicItemListing) {
+            if (isBasicItemListingLike(listing)) {
                 ItemStack result = copyStack(field(listing, "forSale", ItemStack.class));
                 Integer emeraldCost = emeraldCostFromBasicListing(listing);
                 if (emeraldCost == null) {
@@ -64,7 +64,7 @@ public final class RegisteredWanderingTradeInspector {
     public static Set<VillagerTrades.ItemListing> vanillaListings() {
         Set<VillagerTrades.ItemListing> listings = new HashSet<>();
         try {
-            Class<?> managerClass = Class.forName("net.neoforged.neoforge.common.VillagerTradingManager");
+            Class<?> managerClass = Class.forName("net.minecraftforge.common.VillagerTradingManager");
             Field field = managerClass.getDeclaredField("WANDERER_TRADES");
             field.setAccessible(true);
             @SuppressWarnings("unchecked")
@@ -90,7 +90,7 @@ public final class RegisteredWanderingTradeInspector {
         if (result.isEmpty()) {
             return Optional.empty();
         }
-        ResourceLocation resultId = BuiltInRegistries.ITEM.getKey(result.getItem());
+        ResourceLocation resultId = Registry.ITEM.getKey(result.getItem());
         if (resultId == null) {
             return Optional.empty();
         }
@@ -107,6 +107,14 @@ public final class RegisteredWanderingTradeInspector {
             return price2.getCount();
         }
         return null;
+    }
+
+    private static boolean isBasicItemListingLike(VillagerTrades.ItemListing listing) {
+        Class<?> type = listing.getClass();
+        return hasField(type, "forSale")
+                && hasField(type, "price")
+                && hasField(type, "price2")
+                && hasField(type, "maxTrades");
     }
 
     private static ItemStack copyStack(ItemStack stack) {
@@ -133,6 +141,15 @@ public final class RegisteredWanderingTradeInspector {
             }
         }
         throw new NoSuchFieldException(name);
+    }
+
+    private static boolean hasField(Class<?> type, String name) {
+        try {
+            findField(type, name);
+            return true;
+        } catch (NoSuchFieldException exception) {
+            return false;
+        }
     }
 
     public record InspectedOffer(ResourceLocation resultId, Item item, int amount, int emeraldCost, int maxUses, String note) {

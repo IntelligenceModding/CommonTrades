@@ -17,9 +17,9 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Minecraft-1.21.1-3C8527?style=for-the-badge&logo=minecraft&logoColor=white" alt="Minecraft 1.21.1">
+  <img src="https://img.shields.io/badge/Minecraft-1.19.2-3C8527?style=for-the-badge&logo=minecraft&logoColor=white" alt="Minecraft 1.19.2">
   &nbsp;&nbsp;&nbsp;
-  <img src="https://img.shields.io/badge/Loader-NeoForge-6C47FF?style=for-the-badge" alt="NeoForge">
+  <img src="https://img.shields.io/badge/Loader-Forge-F16436?style=for-the-badge" alt="Forge">
 </p>
 
 <p align="center">
@@ -42,7 +42,7 @@
 
 <p align="center">
   &bull; Automatic Wandering Trader offers for missing modded plant and crop-starter items<br>
-  &bull; Tag-based discovery using vanilla, common <code>c</code>, and Common Trades item tags<br>
+  &bull; Tag-based discovery using vanilla, common <code>c</code>, legacy Forge <code>forge</code>, and Common Trades item tags<br>
   &bull; Duplicate filtering against registered trader offers and the current trader's selected offers<br>
   &bull; Configurable offer count, category toggles, emerald prices, and blacklists<br>
   &bull; Datapack tags for pack-specific additions and exclusions<br>
@@ -129,7 +129,7 @@
 </p>
 
 <p align="center">
-  &bull; The NeoForged team for NeoForge and its documentation<br>
+  &bull; The MinecraftForge team for Forge and its documentation<br>
   &bull; The Minecraft modding community for examples, tools, and support<br>
   &bull; The Intelligence Modding community for feedback, testing, and ideas<br>
   &bull; Everyone who reports issues, suggests improvements, or includes Common Trades in their worlds, servers, or modpacks

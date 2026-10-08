@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ClientPacketListener.class)
 abstract class ClientPacketListenerMixin {
-    @Inject(method = "handleMerchantOffers", at = @At("HEAD"))
+    @Inject(method = {"handleMerchantOffers", "m_7330_"}, at = @At("HEAD"), remap = false)
     private void commontrades$clearCommonTradeOfferIndexes(ClientboundMerchantOffersPacket packet, CallbackInfo callbackInfo) {
         CommonTradeClientOfferMarkers.clearSyncedIndexes(packet.getContainerId());
     }

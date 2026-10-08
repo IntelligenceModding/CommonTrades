@@ -18,7 +18,7 @@ import java.util.TreeSet;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.npc.VillagerTrades;
-import net.neoforged.fml.ModList;
+import net.minecraftforge.fml.ModList;
 
 public final class WanderingTradeDebugReport {
     private static final int GENERIC_TRADE_LEVEL = 1;
