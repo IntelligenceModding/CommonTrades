@@ -98,7 +98,7 @@ public final class CommonTradesConfig {
         Set<String> blacklist = new HashSet<>();
         for (String entry : values.modBlacklist) {
             String modId = entry.toLowerCase(Locale.ROOT);
-            if (!ResourceLocation.isValidNamespace(modId)) {
+            if (ResourceLocation.tryParse(modId + ":placeholder") == null) {
                 CommonTrades.LOGGER.warn("Ignoring malformed Common Trades mod blacklist entry '{}'", entry);
                 continue;
             }

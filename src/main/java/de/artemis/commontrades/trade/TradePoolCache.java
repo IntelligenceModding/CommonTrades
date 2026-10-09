@@ -12,7 +12,6 @@ import java.util.Optional;
 import java.util.Set;
 import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
@@ -21,7 +20,6 @@ import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.trading.ItemCost;
 import net.minecraft.world.item.trading.MerchantOffer;
 
 public final class TradePoolCache {
@@ -204,9 +202,7 @@ public final class TradePoolCache {
         ItemStack defaultStack = item.getDefaultInstance();
         return !defaultStack.isEmpty()
                 && defaultStack.getMaxStackSize() > 1
-                && !defaultStack.isDamageableItem()
-                && !defaultStack.has(DataComponents.CREATIVE_SLOT_LOCK)
-                && !defaultStack.has(DataComponents.HIDE_TOOLTIP);
+                && !defaultStack.isDamageableItem();
     }
 
     private static List<TradeCategory> availableCategories(Set<Item> usedItems) {
@@ -234,7 +230,7 @@ public final class TradePoolCache {
                 return category;
             }
         }
-        return categories.getLast();
+        return categories.get(categories.size() - 1);
     }
 
     private static Optional<SelectedTrade> makeOffer(TradeEntry entry, RandomSource random, FeatureFlagSet enabledFeatures) {
@@ -250,7 +246,7 @@ public final class TradePoolCache {
         }
 
         MerchantOffer offer = new MerchantOffer(
-                new ItemCost(Items.EMERALD, CommonTradesConfig.emeraldCost(category)),
+                new ItemStack(Items.EMERALD, CommonTradesConfig.emeraldCost(category)),
                 forSale,
                 category.maxUses(),
                 VILLAGER_XP,

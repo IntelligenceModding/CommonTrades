@@ -103,11 +103,11 @@ public final class RegisteredWanderingTradeInspector {
     }
 
     private static int emeraldCost(MerchantOffer offer) {
-        if (offer.getItemCostA().itemStack().is(Items.EMERALD)) {
-            return offer.getItemCostA().count();
+        if (offer.getCostA().is(Items.EMERALD)) {
+            return offer.getCostA().getCount();
         }
-        if (offer.getItemCostB().isPresent() && offer.getItemCostB().get().itemStack().is(Items.EMERALD)) {
-            return offer.getItemCostB().get().count();
+        if (offer.getCostB().is(Items.EMERALD)) {
+            return offer.getCostB().getCount();
         }
         return -1;
     }

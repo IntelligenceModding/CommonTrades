@@ -19,18 +19,18 @@ Common Trades uses the mod id `commontrades`.
 In a datapack, item tag files go under:
 
 ```text
-data/commontrades/tags/item/wandering_trader/
+data/commontrades/tags/items/wandering_trader/
 ```
 
 Supported tag files:
 
 ```text
-data/commontrades/tags/item/wandering_trader/saplings.json
-data/commontrades/tags/item/wandering_trader/flowers.json
-data/commontrades/tags/item/wandering_trader/seeds.json
-data/commontrades/tags/item/wandering_trader/mushrooms.json
-data/commontrades/tags/item/wandering_trader/small_plants.json
-data/commontrades/tags/item/wandering_trader/blacklist.json
+data/commontrades/tags/items/wandering_trader/saplings.json
+data/commontrades/tags/items/wandering_trader/flowers.json
+data/commontrades/tags/items/wandering_trader/seeds.json
+data/commontrades/tags/items/wandering_trader/mushrooms.json
+data/commontrades/tags/items/wandering_trader/small_plants.json
+data/commontrades/tags/items/wandering_trader/blacklist.json
 ```
 
 Use `/reload` after changing datapack tags.
@@ -107,8 +107,6 @@ Common Trades excludes:
 - empty or air items;
 - items with max stack size `1`;
 - damageable items;
-- items with creative slot lock data;
-- items with hidden tooltip data;
 - items in `commontrades:wandering_trader/blacklist`;
 - items in the common `c:hidden_from_recipe_viewers` tag;
 - items blocked by the server config item, mod, or tag blacklists.

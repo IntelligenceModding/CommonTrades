@@ -42,6 +42,7 @@ public final class CommonTradesConfigScreen extends Screen {
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        this.renderBackground(guiGraphics);
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, 12, TITLE_COLOR);
         guiGraphics.drawCenteredString(this.font, Component.translatable("commontrades.config.client"), this.width / 2, 34, SUBTITLE_COLOR);
