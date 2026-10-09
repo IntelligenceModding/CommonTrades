@@ -14,14 +14,13 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.trading.ItemCost;
 import net.minecraft.world.item.trading.MerchantOffer;
 
@@ -46,18 +45,18 @@ public final class TradePoolCache {
 
     public static synchronized void rebuild() {
         Map<TradeCategory, List<TradeEntry>> rebuilt = new EnumMap<>(TradeCategory.class);
-        Set<Identifier> itemBlacklist = CommonTradesConfig.itemBlacklist();
+        Set<ResourceLocation> itemBlacklist = CommonTradesConfig.itemBlacklist();
         Set<String> modBlacklist = CommonTradesConfig.modBlacklist();
         List<TagKey<Item>> tagBlacklist = CommonTradesConfig.tagBlacklist();
         Set<Item> registeredWanderingTradeItems = RegisteredWanderingTradeInspector.registeredResultItems();
 
-        Map<Identifier, TradeEntry> discovered = new LinkedHashMap<>();
+        Map<ResourceLocation, TradeEntry> discovered = new LinkedHashMap<>();
         for (TradeCategory category : TradeCategory.values()) {
             if (CommonTradesConfig.enabled() && CommonTradesConfig.isCategoryEnabled(category)) {
                 for (TagKey<Item> sourceTag : category.sourceTags()) {
                     for (Holder<Item> holder : BuiltInRegistries.ITEM.getTagOrEmpty(sourceTag)) {
                         Item item = holder.value();
-                        Identifier id = BuiltInRegistries.ITEM.getKey(item);
+                        ResourceLocation id = BuiltInRegistries.ITEM.getKey(item);
                         if (isEligible(holder, item, id, itemBlacklist, modBlacklist, tagBlacklist, registeredWanderingTradeItems)) {
                             discovered.putIfAbsent(id, new TradeEntry(category, item, id));
                         }
@@ -126,38 +125,6 @@ public final class TradePoolCache {
         return offers;
     }
 
-    public static boolean matchesGeneratedOfferShape(MerchantOffer offer) {
-        ensureBuilt();
-        return matchesGeneratedOfferShapeFromBuiltPools(offer);
-    }
-
-    private static synchronized boolean matchesGeneratedOfferShapeFromBuiltPools(MerchantOffer offer) {
-        ItemStack result = offer.getResult();
-        if (result.isEmpty()
-                || offer.getItemCostB().isPresent()
-                || !offer.getItemCostA().itemStack().is(Items.EMERALD)
-                || offer.getXp() != VILLAGER_XP
-                || Float.compare(offer.getPriceMultiplier(), PRICE_MULTIPLIER) != 0) {
-            return false;
-        }
-
-        for (TradeCategory category : TradeCategory.values()) {
-            if (offer.getItemCostA().count() != CommonTradesConfig.emeraldCost(category)
-                    || offer.getMaxUses() != category.maxUses()
-                    || result.getCount() < category.minOutputCount()
-                    || result.getCount() > category.maxOutputCount()) {
-                continue;
-            }
-
-            for (TradeEntry entry : entriesByCategory.getOrDefault(category, List.of())) {
-                if (entry.item() == result.getItem()) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
     static Optional<SelectedTrade> createOffer(RandomSource random, Set<Item> usedItems, FeatureFlagSet enabledFeatures) {
         ensureBuilt();
         if (!CommonTradesConfig.enabled() || !hasEntries()) {
@@ -211,8 +178,8 @@ public final class TradePoolCache {
     private static boolean isEligible(
             Holder<Item> holder,
             Item item,
-            Identifier id,
-            Set<Identifier> itemBlacklist,
+            ResourceLocation id,
+            Set<ResourceLocation> itemBlacklist,
             Set<String> modBlacklist,
             List<TagKey<Item>> tagBlacklist,
             Set<Item> registeredWanderingTradeItems) {
@@ -239,11 +206,7 @@ public final class TradePoolCache {
                 && defaultStack.getMaxStackSize() > 1
                 && !defaultStack.isDamageableItem()
                 && !defaultStack.has(DataComponents.CREATIVE_SLOT_LOCK)
-                && !hidesTooltip(defaultStack);
-    }
-
-    private static boolean hidesTooltip(ItemStack stack) {
-        return stack.getOrDefault(DataComponents.TOOLTIP_DISPLAY, TooltipDisplay.DEFAULT).hideTooltip();
+                && !defaultStack.has(DataComponents.HIDE_TOOLTIP);
     }
 
     private static List<TradeCategory> availableCategories(Set<Item> usedItems) {

@@ -8,7 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.WeakHashMap;
-import net.minecraft.world.entity.npc.wanderingtrader.WanderingTrader;
+import net.minecraft.world.entity.npc.WanderingTrader;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.item.trading.MerchantOffers;
@@ -51,15 +51,11 @@ public final class CommonTradeOfferManager {
         return OWNED_OFFERS.contains(offer);
     }
 
-    public static boolean ownsOrMatchesGeneratedOffer(MerchantOffer offer) {
-        return owns(offer) || TradePoolCache.matchesGeneratedOfferShape(offer);
-    }
-
     public static int[] ownedOfferIndexes(MerchantOffers offers) {
         int[] indexes = new int[offers.size()];
         int count = 0;
         for (int index = 0; index < offers.size(); index++) {
-            if (ownsOrMatchesGeneratedOffer(offers.get(index))) {
+            if (owns(offers.get(index))) {
                 indexes[count] = index;
                 count++;
             }
@@ -82,7 +78,7 @@ public final class CommonTradeOfferManager {
     private static int countOwnedOffers(MerchantOffers offers) {
         int count = 0;
         for (MerchantOffer offer : offers) {
-            if (ownsOrMatchesGeneratedOffer(offer)) {
+            if (owns(offer)) {
                 count++;
             }
         }

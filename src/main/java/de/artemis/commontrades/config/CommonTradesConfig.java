@@ -17,7 +17,7 @@ import java.util.Locale;
 import java.util.Set;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 
@@ -81,10 +81,10 @@ public final class CommonTradesConfig {
         };
     }
 
-    public static Set<Identifier> itemBlacklist() {
-        Set<Identifier> blacklist = new HashSet<>();
+    public static Set<ResourceLocation> itemBlacklist() {
+        Set<ResourceLocation> blacklist = new HashSet<>();
         for (String entry : values.itemBlacklist) {
-            Identifier id = Identifier.tryParse(entry);
+            ResourceLocation id = ResourceLocation.tryParse(entry);
             if (id == null) {
                 CommonTrades.LOGGER.warn("Ignoring malformed Common Trades item blacklist entry '{}'", entry);
                 continue;
@@ -98,7 +98,7 @@ public final class CommonTradesConfig {
         Set<String> blacklist = new HashSet<>();
         for (String entry : values.modBlacklist) {
             String modId = entry.toLowerCase(Locale.ROOT);
-            if (!Identifier.isValidNamespace(modId)) {
+            if (!ResourceLocation.isValidNamespace(modId)) {
                 CommonTrades.LOGGER.warn("Ignoring malformed Common Trades mod blacklist entry '{}'", entry);
                 continue;
             }
@@ -111,7 +111,7 @@ public final class CommonTradesConfig {
         List<TagKey<Item>> blacklist = new ArrayList<>();
         for (String entry : values.tagBlacklist) {
             String idText = entry.startsWith("#") ? entry.substring(1) : entry;
-            Identifier id = Identifier.tryParse(idText);
+            ResourceLocation id = ResourceLocation.tryParse(idText);
             if (id == null) {
                 CommonTrades.LOGGER.warn("Ignoring malformed Common Trades tag blacklist entry '{}'", entry);
                 continue;

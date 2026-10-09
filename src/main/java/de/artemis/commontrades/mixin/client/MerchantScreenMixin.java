@@ -5,8 +5,8 @@ import de.artemis.commontrades.config.CommonTradesClientConfig;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.MerchantScreen;
 import net.minecraft.world.inventory.MerchantMenu;
+import net.minecraft.world.item.trading.MerchantOffer;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -16,43 +16,27 @@ abstract class MerchantScreenMixin {
     private static final int TRADE_BUTTON_X = 5;
     private static final int TRADE_BUTTON_WIDTH = 88;
     private static final int TRADE_BUTTON_HEIGHT = 20;
-    private static final int TRADE_BUTTON_COUNT = 7;
-    private static final int TRADE_BUTTON_TOP_OFFSET = 18;
-    private static final int TRADE_BUTTON_SPACING = 20;
 
-    @Shadow
-    private int scrollOff;
-
-    @Inject(method = "renderContents", at = @At("RETURN"))
-    private void commontrades$renderOfferMarkers(
+    @Inject(method = "renderButtonArrows", at = @At("RETURN"))
+    private void commontrades$renderOfferMarker(
             GuiGraphics guiGraphics,
-            int mouseX,
-            int mouseY,
-            float partialTick,
+            MerchantOffer merchantOffer,
+            int posX,
+            int posY,
             CallbackInfo callbackInfo) {
         MerchantMenu menu = (MerchantMenu) ((AbstractContainerScreenAccessor) this).commontrades$getMenu();
-        if (!CommonTradesClientConfig.visualIndicators() || menu.getOffers().isEmpty()) {
-            return;
+        if (CommonTradesClientConfig.visualIndicators() && CommonTradeClientOfferMarkers.isMarked(menu, merchantOffer)) {
+            int buttonX = posX + TRADE_BUTTON_X;
+            int buttonY = posY - 1;
+            int left = buttonX + 1;
+            int top = buttonY + 1;
+            int right = buttonX + TRADE_BUTTON_WIDTH - 1;
+            int bottom = buttonY + TRADE_BUTTON_HEIGHT - 1;
+            int markerColor = CommonTradesClientConfig.outlineColor();
+            guiGraphics.fill(left, top, right, top + 1, markerColor);
+            guiGraphics.fill(left, bottom - 1, right, bottom, markerColor);
+            guiGraphics.fill(left, top, left + 1, bottom, markerColor);
+            guiGraphics.fill(right - 1, top, right, bottom, markerColor);
         }
-
-        int markerColor = CommonTradesClientConfig.outlineColor();
-        int firstVisibleOffer = menu.getOffers().size() > TRADE_BUTTON_COUNT ? this.scrollOff : 0;
-        int lastVisibleOffer = Math.min(firstVisibleOffer + TRADE_BUTTON_COUNT, menu.getOffers().size());
-        AbstractContainerScreenAccessor accessor = (AbstractContainerScreenAccessor) this;
-        int screenX = accessor.commontrades$getLeftPos();
-        int screenY = accessor.commontrades$getTopPos();
-
-        for (int offerIndex = firstVisibleOffer; offerIndex < lastVisibleOffer; offerIndex++) {
-            if (CommonTradeClientOfferMarkers.isMarked(menu, offerIndex)) {
-                int row = offerIndex - firstVisibleOffer;
-                int buttonX = screenX + TRADE_BUTTON_X;
-                int buttonY = screenY + TRADE_BUTTON_TOP_OFFSET + row * TRADE_BUTTON_SPACING;
-                renderOutline(guiGraphics, buttonX, buttonY, markerColor);
-            }
-        }
-    }
-
-    private static void renderOutline(GuiGraphics guiGraphics, int x, int y, int color) {
-        guiGraphics.renderOutline(x + 1, y + 1, TRADE_BUTTON_WIDTH - 2, TRADE_BUTTON_HEIGHT - 2, color);
     }
 }

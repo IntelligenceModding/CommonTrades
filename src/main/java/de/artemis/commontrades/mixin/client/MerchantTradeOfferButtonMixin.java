@@ -51,7 +51,7 @@ abstract class MerchantTradeOfferButtonMixin {
         ItemStack result = menu.getOffers().get(offerIndex).getResult();
         List<Component> tooltip = new ArrayList<>(Screen.getTooltipFromItem(minecraft, result));
         tooltip.add(Component.translatable("commontrades.tooltip.added_by_common_trades").withStyle(ChatFormatting.GRAY));
-        guiGraphics.setTooltipForNextFrame(minecraft.font, tooltip, result.getTooltipImage(), mouseX, mouseY, null);
+        guiGraphics.renderTooltip(minecraft.font, tooltip, result.getTooltipImage(), mouseX, mouseY);
         callbackInfo.cancel();
     }
 }

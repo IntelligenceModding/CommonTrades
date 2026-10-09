@@ -16,13 +16,12 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.resources.Identifier;
-import net.minecraft.world.entity.npc.villager.VillagerTrades;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.npc.VillagerTrades;
 
 public final class WanderingTradeDebugReport {
-    private static final int BUYING_TRADE_GROUP = 0;
-    private static final int RARE_TRADE_GROUP = 1;
-    private static final int GENERIC_TRADE_GROUP = 2;
+    private static final int GENERIC_TRADE_LEVEL = 1;
+    private static final int RARE_TRADE_LEVEL = 2;
     private static final int ENTRIES_PER_PAGE = 18;
     private static final String COMMON_TRADES_FILTER = CommonTrades.MOD_ID;
     private static final String VANILLA_FILTER = "vanilla";
@@ -40,12 +39,11 @@ public final class WanderingTradeDebugReport {
     public static WanderingTradeDebugReport create() {
         TradePoolCache.ensureBuilt();
 
-        Set<VillagerTrades.ItemListing> vanillaListings = vanillaListings();
         Map<String, TradeGroupBuilder> otherModGroups = new HashMap<>();
         TradeGroupBuilder vanilla = new TradeGroupBuilder(GroupKind.VANILLA, VANILLA_FILTER, "Vanilla");
         TradeGroupBuilder commonTrades = new TradeGroupBuilder(GroupKind.COMMON_TRADES, COMMON_TRADES_FILTER, "Common Trades");
 
-        collectRegisteredTrades(vanillaListings, vanilla, otherModGroups);
+        collectRegisteredTrades(vanilla, otherModGroups);
         collectCommonTrades(commonTrades);
 
         List<TradeGroup> groups = new ArrayList<>();
@@ -126,34 +124,28 @@ public final class WanderingTradeDebugReport {
     }
 
     private static void collectRegisteredTrades(
-            Set<VillagerTrades.ItemListing> vanillaListings,
             TradeGroupBuilder vanilla,
             Map<String, TradeGroupBuilder> otherModGroups) {
-        collectRegisteredTrades(BUYING_TRADE_GROUP, "Buying", vanillaListings, vanilla, otherModGroups);
-        collectRegisteredTrades(RARE_TRADE_GROUP, "Rare", vanillaListings, vanilla, otherModGroups);
-        collectRegisteredTrades(GENERIC_TRADE_GROUP, "Generic", vanillaListings, vanilla, otherModGroups);
+        collectRegisteredTrades(GENERIC_TRADE_LEVEL, "Generic", vanilla, otherModGroups);
+        collectRegisteredTrades(RARE_TRADE_LEVEL, "Rare", vanilla, otherModGroups);
     }
 
     private static void collectRegisteredTrades(
-            int groupIndex,
-            String label,
-            Set<VillagerTrades.ItemListing> vanillaListings,
+            int level,
+            String rarity,
             TradeGroupBuilder vanilla,
             Map<String, TradeGroupBuilder> otherModGroups) {
-        List<VillagerTrades.ItemListing[]> tradeGroups = RegisteredWanderingTradeInspector.wanderingTradeListings();
-        if (groupIndex >= tradeGroups.size()) {
+        VillagerTrades.ItemListing[] listings = VillagerTrades.WANDERING_TRADER_TRADES.get(level);
+        if (listings == null) {
             return;
         }
 
-        VillagerTrades.ItemListing[] listings = tradeGroups.get(groupIndex);
         for (VillagerTrades.ItemListing listing : listings) {
-            DebugTrade trade = inspectListing(label, listing);
-            if (vanillaListings.contains(listing)) {
+            DebugTrade trade = inspectListing(rarity, listing);
+            String modId = modId(listing, trade);
+            if (OTHER_MODDED_MINECRAFT_ID.equals(modId)) {
                 vanilla.add(trade);
             } else {
-                String modId = trade.resultId()
-                        .map(Identifier::getNamespace)
-                        .orElse(UNKNOWN_MOD_ID);
                 if (CommonTrades.MOD_ID.equals(modId)) {
                     modId = UNKNOWN_MOD_ID;
                 }
@@ -200,14 +192,37 @@ public final class WanderingTradeDebugReport {
                 rarity,
                 Optional.of(inspectedOffer.resultId()),
                 Integer.toString(inspectedOffer.amount()),
-                Integer.toString(inspectedOffer.emeraldCost()),
+                emeraldCost(inspectedOffer),
                 Integer.toString(inspectedOffer.maxUses()),
                 false,
                 inspectedOffer.note());
     }
 
-    private static Set<VillagerTrades.ItemListing> vanillaListings() {
-        return RegisteredWanderingTradeInspector.vanillaListings();
+    private static String modId(VillagerTrades.ItemListing listing, DebugTrade trade) {
+        Optional<String> resultNamespace = trade.resultId().map(ResourceLocation::getNamespace);
+        if (resultNamespace.isPresent()) {
+            return resultNamespace.get();
+        }
+
+        String className = listing.getClass().getName();
+        if (className.startsWith("net.minecraft.")) {
+            return OTHER_MODDED_MINECRAFT_ID;
+        }
+        return inferModIdFromClassName(className).orElse(UNKNOWN_MOD_ID);
+    }
+
+    private static Optional<String> inferModIdFromClassName(String className) {
+        return FabricLoader.getInstance().getAllMods().stream()
+                .map(container -> container.getMetadata().getId())
+                .filter(modId -> className.startsWith(modId + "."))
+                .findFirst();
+    }
+
+    private static String emeraldCost(RegisteredWanderingTradeInspector.InspectedOffer inspectedOffer) {
+        if (inspectedOffer.emeraldCost() < 0) {
+            return "other";
+        }
+        return Integer.toString(inspectedOffer.emeraldCost());
     }
 
     private List<TradeGroup> filteredGroups(String filter) {
@@ -268,6 +283,9 @@ public final class WanderingTradeDebugReport {
     }
 
     private static String emeraldText(String emeraldCost) {
+        if ("other".equals(emeraldCost)) {
+            return "other cost";
+        }
         if (!"1".equals(emeraldCost)) {
             return emeraldCost + " Emeralds";
         }
@@ -325,7 +343,7 @@ public final class WanderingTradeDebugReport {
 
     private record DebugTrade(
             String label,
-            Optional<Identifier> resultId,
+            Optional<ResourceLocation> resultId,
             String amount,
             String emeraldCost,
             String maxUses,
@@ -370,7 +388,7 @@ public final class WanderingTradeDebugReport {
                     filterId,
                     title,
                     trades.stream()
-                            .sorted(Comparator.comparing(trade -> trade.resultId().map(Identifier::toString).orElse("~" + trade.note())))
+                            .sorted(Comparator.comparing(trade -> trade.resultId().map(ResourceLocation::toString).orElse("~" + trade.note())))
                             .toList());
         }
     }

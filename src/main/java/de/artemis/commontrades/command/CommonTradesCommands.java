@@ -13,6 +13,8 @@ import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.network.chat.Component;
 
 public final class CommonTradesCommands {
+    private static final int REQUIRED_PERMISSION_LEVEL = 2;
+
     private CommonTradesCommands() {
     }
 
@@ -22,7 +24,7 @@ public final class CommonTradesCommands {
 
     private static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("commontrades")
-                .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+                .requires(source -> source.hasPermission(REQUIRED_PERMISSION_LEVEL))
                 .then(Commands.literal("reload")
                         .executes(CommonTradesCommands::reloadConfig))
                 .then(Commands.literal("trades")
