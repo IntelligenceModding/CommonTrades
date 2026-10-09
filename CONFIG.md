@@ -14,21 +14,21 @@
 
 ## Config Files
 
-The server config is registered as a NeoForge server config. In a running world it is normally written as:
+The server config is written to Fabric's config directory as:
 
 ```text
-<world>/serverconfig/commontrades-server.toml
+config/commontrades.json
 ```
 
 The client config is normally written as:
 
 ```text
-config/commontrades-client.toml
+config/commontrades-client.json
 ```
 
-On a dedicated server, only the server's `commontrades-server.toml` controls generated trades.
+On a dedicated server, only the server's `commontrades.json` controls generated trades.
 
-In singleplayer, the loaded world's server config controls gameplay. NeoForge's config screen can edit the loaded world's server config when available.
+In singleplayer, the local `commontrades.json` controls gameplay. The Mod Menu config screen only edits client visual marker settings, because Fabric client config screens run on the client and must not be treated as server administration.
 
 ## Server Config Sections
 
@@ -63,16 +63,17 @@ Vanilla Wandering Traders select five generic offers, so `extraTradesPerTrader` 
 
 ## Blacklist Examples
 
-```toml
-[blacklists]
-itemBlacklist = ["examplemod:rare_seed", "examplemod:decorative_sapling"]
-modBlacklist = ["examplemod"]
-tagBlacklist = ["examplemod:not_for_traders", "#c:hidden_from_recipe_viewers"]
+```json
+{
+  "itemBlacklist": ["examplemod:rare_seed", "examplemod:decorative_sapling"],
+  "modBlacklist": ["examplemod"],
+  "tagBlacklist": ["examplemod:not_for_traders", "#c:hidden_from_recipe_viewers"]
+}
 ```
 
 Malformed blacklist entries are ignored and logged.
 
-The built-in `commontrades:wandering_trader/blacklist` item tag and NeoForge hidden-from-recipe-viewers tag are always respected.
+The built-in `commontrades:wandering_trader/blacklist` item tag and the common `c:hidden_from_recipe_viewers` tag are always respected.
 
 ## Server Authority
 
@@ -81,6 +82,8 @@ Gameplay settings are server-authoritative.
 On a dedicated server, a remote player's local config cannot change prices, categories, blacklist behavior, or how many Common Trades offers a trader receives.
 
 Client-side settings do not affect trade contents, prices, availability, or server-side gameplay.
+
+The Mod Menu config screen is client-only and cannot write the server gameplay config. Server operators should edit `config/commontrades.json` on the server and restart or run `/commontrades reload`.
 
 ## Client Config
 
@@ -101,6 +104,7 @@ No custom NBT or permanent item metadata is attached to trade result stacks for 
 Common Trades includes an operator-only debug command for inspecting Wandering Trader trade pools:
 
 ```text
+/commontrades reload
 /commontrades trades
 /commontrades trades <page>
 /commontrades trades commontrades
@@ -109,6 +113,8 @@ Common Trades includes an operator-only debug command for inspecting Wandering T
 ```
 
 The command requires permission level `2`.
+
+`/commontrades reload` reloads the server gameplay config from disk and rebuilds Common Trades trade pools.
 
 Use it while developing modpacks, datapacks, or compatibility changes to verify which offers are visible to Common Trades and how they are grouped.
 

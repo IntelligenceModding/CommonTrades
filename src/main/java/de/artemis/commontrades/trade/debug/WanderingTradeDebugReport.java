@@ -15,9 +15,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.Identifier;
-import net.neoforged.fml.ModList;
 
 public final class WanderingTradeDebugReport {
     private static final int ENTRIES_PER_PAGE = 18;
@@ -270,8 +270,8 @@ public final class WanderingTradeDebugReport {
         if (UNKNOWN_MOD_ID.equals(modId)) {
             return "Unknown Mod";
         }
-        return ModList.get().getModContainerById(modId)
-                .map(container -> container.getModInfo().getDisplayName())
+        return FabricLoader.getInstance().getModContainer(modId)
+                .map(container -> container.getMetadata().getName())
                 .filter(name -> !name.isBlank())
                 .orElse(modId);
     }

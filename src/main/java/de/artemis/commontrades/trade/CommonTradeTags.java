@@ -8,6 +8,7 @@ import net.minecraft.world.item.Item;
 
 public final class CommonTradeTags {
     public static final TagKey<Item> BLACKLIST = commonTrades("wandering_trader/blacklist");
+    public static final TagKey<Item> HIDDEN_FROM_RECIPE_VIEWERS = common("hidden_from_recipe_viewers");
 
     private CommonTradeTags() {
     }

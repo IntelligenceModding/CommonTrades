@@ -1,58 +1,91 @@
 package de.artemis.commontrades.config;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import de.artemis.commontrades.CommonTrades;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Locale;
-import net.neoforged.neoforge.common.ModConfigSpec;
-import org.apache.commons.lang3.tuple.Pair;
+import net.fabricmc.loader.api.FabricLoader;
 
 public final class CommonTradesClientConfig {
-    public static final CommonTradesClientConfig INSTANCE;
-    public static final ModConfigSpec SPEC;
-
+    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final int DEFAULT_OUTLINE_RGB = 0x00D26A;
     private static final String DEFAULT_OUTLINE_COLOR = "#00D26A";
+    private static Values values = new Values();
 
-    private final ModConfigSpec.BooleanValue visualIndicators;
-    private final ModConfigSpec.IntValue outlineOpacity;
-    private final ModConfigSpec.ConfigValue<String> outlineColor;
-
-    static {
-        Pair<CommonTradesClientConfig, ModConfigSpec> pair = new ModConfigSpec.Builder().configure(CommonTradesClientConfig::new);
-        INSTANCE = pair.getLeft();
-        SPEC = pair.getRight();
+    private CommonTradesClientConfig() {
     }
 
-    private CommonTradesClientConfig(ModConfigSpec.Builder builder) {
-        builder.translation("commontrades.configuration.visualMarkers").push("visualMarkers");
-        visualIndicators = builder
-                .translation("commontrades.configuration.visualMarkers.visualIndicators")
-                .comment("Client-side. Show Common Trades visual markers and the tooltip line in Wandering Trader trades.")
-                .define("visualIndicators", true);
-        outlineOpacity = builder
-                .translation("commontrades.configuration.visualMarkers.outlineOpacity")
-                .comment("Client-side. Opacity of the Common Trades trade-row outline, as a percentage.")
-                .defineInRange("outlineOpacity", 100, 0, 100);
-        outlineColor = builder
-                .translation("commontrades.configuration.visualMarkers.outlineColor")
-                .comment("Client-side. RGB hex color for the Common Trades trade-row outline. Accepted forms: #00D26A, 00D26A, or 0x00D26A.")
-                .define("outlineColor", DEFAULT_OUTLINE_COLOR, CommonTradesClientConfig::isColorCode);
-        builder.pop();
+    public static void load() {
+        Path path = path();
+        if (Files.exists(path)) {
+            try (Reader reader = Files.newBufferedReader(path)) {
+                Values loaded = GSON.fromJson(reader, Values.class);
+                if (loaded != null) {
+                    values = loaded.normalized();
+                    return;
+                }
+            } catch (IOException exception) {
+                CommonTrades.LOGGER.warn("Could not load Common Trades client config at {}", path, exception);
+            }
+        }
+        save(path);
+    }
+
+    public static Snapshot snapshot() {
+        return Snapshot.from(values);
+    }
+
+    public static void apply(Snapshot snapshot) {
+        values = snapshot.toValues().normalized();
+        save(path());
     }
 
     public static boolean visualIndicators() {
-        return get(INSTANCE.visualIndicators);
+        return values.visualIndicators;
+    }
+
+    public static int outlineOpacity() {
+        return values.outlineOpacity;
+    }
+
+    public static String outlineColorText() {
+        return values.outlineColor;
     }
 
     public static int outlineColor() {
-        int alpha = Math.round(get(INSTANCE.outlineOpacity) * 255.0F / 100.0F);
-        int rgb = parseRgb(get(INSTANCE.outlineColor), DEFAULT_OUTLINE_RGB);
+        int alpha = Math.round(values.outlineOpacity * 255.0F / 100.0F);
+        int rgb = parseRgb(values.outlineColor, DEFAULT_OUTLINE_RGB);
         return alpha << 24 | rgb;
     }
 
-    private static boolean isColorCode(Object value) {
-        return value instanceof String text && parseRgb(text, -1) >= 0;
+    public static boolean isColorCode(String value) {
+        return parseRgb(value, -1) >= 0;
+    }
+
+    private static Path path() {
+        return FabricLoader.getInstance().getConfigDir().resolve(CommonTrades.MOD_ID + "-client.json");
+    }
+
+    private static void save(Path path) {
+        try {
+            Files.createDirectories(path.getParent());
+            try (Writer writer = Files.newBufferedWriter(path)) {
+                GSON.toJson(values, writer);
+            }
+        } catch (IOException exception) {
+            CommonTrades.LOGGER.warn("Could not save Common Trades client config at {}", path, exception);
+        }
     }
 
     private static int parseRgb(String text, int fallback) {
+        if (text == null) {
+            return fallback;
+        }
         String normalized = text.trim().toLowerCase(Locale.ROOT);
         if (normalized.startsWith("#")) {
             normalized = normalized.substring(1);
@@ -72,15 +105,31 @@ public final class CommonTradesClientConfig {
         return Integer.parseInt(normalized, 16);
     }
 
-    private static boolean get(ModConfigSpec.BooleanValue value) {
-        return SPEC.isLoaded() ? value.getAsBoolean() : value.getDefault();
+    public record Snapshot(boolean visualIndicators, int outlineOpacity, String outlineColor) {
+        private static Snapshot from(Values values) {
+            return new Snapshot(values.visualIndicators, values.outlineOpacity, values.outlineColor);
+        }
+
+        private Values toValues() {
+            Values result = new Values();
+            result.visualIndicators = visualIndicators;
+            result.outlineOpacity = outlineOpacity;
+            result.outlineColor = outlineColor;
+            return result;
+        }
     }
 
-    private static int get(ModConfigSpec.IntValue value) {
-        return SPEC.isLoaded() ? value.getAsInt() : value.getDefault();
-    }
+    private static final class Values {
+        boolean visualIndicators = true;
+        int outlineOpacity = 100;
+        String outlineColor = DEFAULT_OUTLINE_COLOR;
 
-    private static String get(ModConfigSpec.ConfigValue<String> value) {
-        return SPEC.isLoaded() ? value.get() : value.getDefault();
+        Values normalized() {
+            outlineOpacity = Math.max(0, Math.min(100, outlineOpacity));
+            if (!isColorCode(outlineColor)) {
+                outlineColor = DEFAULT_OUTLINE_COLOR;
+            }
+            return this;
+        }
     }
 }

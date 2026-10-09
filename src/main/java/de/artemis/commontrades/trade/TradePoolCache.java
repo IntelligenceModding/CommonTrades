@@ -24,10 +24,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.trading.ItemCost;
 import net.minecraft.world.item.trading.MerchantOffer;
-import net.neoforged.neoforge.common.Tags;
-import net.neoforged.neoforge.event.TagsUpdatedEvent;
-import net.neoforged.fml.config.ModConfig;
-import net.neoforged.fml.event.config.ModConfigEvent;
 
 public final class TradePoolCache {
     private static final float PRICE_MULTIPLIER = 0.05F;
@@ -41,28 +37,12 @@ public final class TradePoolCache {
     private TradePoolCache() {
     }
 
-    public static void onTagsUpdated(TagsUpdatedEvent event) {
-        if (event.shouldUpdateStaticData()) {
-            registryAccess = event.getRegistries();
-            markDirty();
-        }
+    public static void onTagsLoaded(RegistryAccess registries) {
+        registryAccess = registries;
+        markDirty();
     }
 
-    public static void onConfigLoading(ModConfigEvent.Loading event) {
-        onConfigChanged(event);
-    }
-
-    public static void onConfigReloading(ModConfigEvent.Reloading event) {
-        onConfigChanged(event);
-    }
-
-    private static void onConfigChanged(ModConfigEvent event) {
-        if (CommonTrades.MOD_ID.equals(event.getConfig().getModId()) && event.getConfig().getType() == ModConfig.Type.SERVER) {
-            markDirty();
-        }
-    }
-
-    private static synchronized void markDirty() {
+    public static synchronized void markDirty() {
         dirty = true;
     }
 
@@ -247,7 +227,7 @@ public final class TradePoolCache {
         if (registeredWanderingTradeItems.contains(item)) {
             return false;
         }
-        if (holder.is(CommonTradeTags.BLACKLIST) || holder.is(Tags.Items.HIDDEN_FROM_RECIPE_VIEWERS)) {
+        if (holder.is(CommonTradeTags.BLACKLIST) || holder.is(CommonTradeTags.HIDDEN_FROM_RECIPE_VIEWERS)) {
             return false;
         }
         for (TagKey<Item> blacklistedTag : tagBlacklist) {

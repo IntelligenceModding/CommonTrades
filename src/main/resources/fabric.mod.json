@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "id": "${mod_id}",
+  "version": "${mod_version}",
+  "name": "${mod_name}",
+  "description": "${mod_description}",
+  "authors": [
+    "${mod_authors}"
+  ],
+  "contact": {
+    "homepage": "https://www.curseforge.com/minecraft/mc-mods/common-trades",
+    "sources": "https://github.com/IntelligenceModding/CommonTrades",
+    "issues": "https://github.com/IntelligenceModding/CommonTrades/issues",
+    "discord": "https://discord.com/invite/JGWkTy6PG8",
+    "github": "https://github.com/IntelligenceModding",
+    "youtube": "https://www.youtube.com/@intelligencemodding4093"
+  },
+  "license": "${mod_license}",
+  "icon": "icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "de.artemis.commontrades.CommonTrades"
+    ],
+    "client": [
+      "de.artemis.commontrades.CommonTradesClient"
+    ],
+    "modmenu": [
+      "de.artemis.commontrades.compat.modmenu.CommonTradesModMenuApi"
+    ]
+  },
+  "mixins": [
+    "commontrades.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version_range}",
+    "minecraft": "${minecraft_version_range}",
+    "java": ">=25",
+    "fabric-api": ">=${fabric_api_version_range}"
+  },
+  "suggests": {
+    "modmenu": ">=${modmenu_version}"
+  },
+  "custom": {
+    "modmenu": {
+      "links": {
+        "commontrades.link.discord": "https://discord.intelligence-modding.de",
+        "commontrades.link.github": "https://github.com/IntelligenceModding",
+        "commontrades.link.youtube": "https://www.youtube.com/@intelligencemodding4093"
+      }
+    }
+  }
+}

@@ -4,24 +4,27 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import de.artemis.commontrades.config.CommonTradesConfig;
 import de.artemis.commontrades.trade.debug.WanderingTradeDebugReport;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.network.chat.Component;
-import net.neoforged.neoforge.event.RegisterCommandsEvent;
 
 public final class CommonTradesCommands {
     private CommonTradesCommands() {
     }
 
-    public static void register(RegisterCommandsEvent event) {
-        register(event.getDispatcher());
+    public static void register() {
+        CommandRegistrationCallback.EVENT.register((dispatcher, buildContext, selection) -> register(dispatcher));
     }
 
     private static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("commontrades")
                 .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+                .then(Commands.literal("reload")
+                        .executes(CommonTradesCommands::reloadConfig))
                 .then(Commands.literal("trades")
                         .executes(context -> showTrades(context, null, 1))
                         .then(Commands.argument("page", IntegerArgumentType.integer(1))
@@ -43,7 +46,13 @@ public final class CommonTradesCommands {
                                         .executes(context -> showTrades(
                                                 context,
                                                 StringArgumentType.getString(context, "modid"),
-                                                IntegerArgumentType.getInteger(context, "page")))))));
+                                        IntegerArgumentType.getInteger(context, "page")))))));
+    }
+
+    private static int reloadConfig(CommandContext<CommandSourceStack> context) {
+        CommonTradesConfig.load();
+        context.getSource().sendSuccess(() -> Component.translatable("commontrades.command.reload.success"), true);
+        return 1;
     }
 
     private static int showTrades(CommandContext<CommandSourceStack> context, String filter, int page) {

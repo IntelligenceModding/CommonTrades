@@ -110,10 +110,10 @@ Common Trades excludes:
 - items with creative slot lock data;
 - items with hidden tooltip data;
 - items in `commontrades:wandering_trader/blacklist`;
-- items in NeoForge's hidden-from-recipe-viewers tag;
+- items in the common `c:hidden_from_recipe_viewers` tag;
 - items blocked by the server config item, mod, or tag blacklists.
 
-Registered trade detection covers vanilla trader listings and NeoForge `BasicItemListing` entries, which are commonly used by mods when adding simple item-for-emerald offers.
+Registered trade detection covers vanilla and modded trader listings whose result items can be inspected from the registered trade table.
 
 If another mod uses a custom dynamic trade factory whose result item cannot be inspected safely, Common Trades may not be able to exclude that item during discovery. The same-trader duplicate cleanup still removes Common Trades offers when the current trader already selected an external offer with the same result item.
 

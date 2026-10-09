@@ -17,8 +17,8 @@ Explain the purpose of the change rather than only listing modified files.
 Example:
 
 - Minecraft version: 26.2
-- Mod loader: NeoForge
-- Target branch: 26.2-neoforge
+- Mod loader: Fabric
+- Target branch: 26.2-fabric
 -->
 
 ## Changes
@@ -42,7 +42,7 @@ Please mention:
 Example:
 
 - `gradlew.bat build` completed successfully.
-- Tested the changes in the 26.2 NeoForge development client.
+- Tested the changes in the 26.2 Fabric development client.
 - Tested Wandering Trader offer generation.
 - Tested affected tags, config values, blacklists, visual markers, networking, or debug commands where applicable.
 -->
