@@ -1,7 +1,6 @@
 package de.artemis.commontrades.trade;
 
 import java.util.List;
-import net.minecraft.tags.BlockItemTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
@@ -24,7 +23,7 @@ public enum TradeCategory {
     FLOWERS(
             "flowers",
             List.of(
-                    BlockItemTags.SMALL_FLOWERS.item(),
+                    ItemTags.SMALL_FLOWERS,
                     CommonTradeTags.common("flowers"),
                     CommonTradeTags.commonTrades("wandering_trader/flowers")),
             3,
