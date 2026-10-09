@@ -6,11 +6,12 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import de.artemis.commontrades.config.CommonTradesConfig;
 import de.artemis.commontrades.trade.debug.WanderingTradeDebugReport;
-import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
-import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 
 public final class CommonTradesCommands {
     private static final int REQUIRED_PERMISSION_LEVEL = 2;
@@ -19,7 +20,7 @@ public final class CommonTradesCommands {
     }
 
     public static void register() {
-        CommandRegistrationCallback.EVENT.register((dispatcher, buildContext, selection) -> register(dispatcher));
+        CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> register(dispatcher));
     }
 
     private static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
@@ -53,14 +54,14 @@ public final class CommonTradesCommands {
 
     private static int reloadConfig(CommandContext<CommandSourceStack> context) {
         CommonTradesConfig.load();
-        context.getSource().sendSuccess(Component.translatable("commontrades.command.reload.success"), true);
+        context.getSource().sendSuccess(new TranslatableComponent("commontrades.command.reload.success"), true);
         return 1;
     }
 
     private static int showTrades(CommandContext<CommandSourceStack> context, String filter, int page) {
         WanderingTradeDebugReport report = WanderingTradeDebugReport.create();
         for (String line : report.format(filter, page)) {
-            context.getSource().sendSuccess(Component.literal(line), false);
+            context.getSource().sendSuccess(new TextComponent(line), false);
         }
         return report.filteredEntryCount(filter);
     }

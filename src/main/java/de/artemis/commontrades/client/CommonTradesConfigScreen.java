@@ -12,6 +12,8 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 
 public final class CommonTradesConfigScreen extends Screen {
     private static final int ROW_HEIGHT = 24;
@@ -26,10 +28,10 @@ public final class CommonTradesConfigScreen extends Screen {
     private final Screen parent;
     private final Draft draft;
     private final List<RenderedLabel> labels = new ArrayList<>();
-    private Component status = Component.empty();
+    private Component status = TextComponent.EMPTY;
 
     public CommonTradesConfigScreen(Screen parent) {
-        super(Component.translatable("commontrades.config.title"));
+        super(new TranslatableComponent("commontrades.config.title"));
         this.parent = parent;
         this.draft = new Draft(CommonTradesClientConfig.snapshot());
     }
@@ -44,7 +46,7 @@ public final class CommonTradesConfigScreen extends Screen {
         this.renderBackground(poseStack);
         super.render(poseStack, mouseX, mouseY, partialTick);
         drawCenteredString(poseStack, this.font, this.title, this.width / 2, 12, TITLE_COLOR);
-        drawCenteredString(poseStack, this.font, Component.translatable("commontrades.config.client"), this.width / 2, 34, SUBTITLE_COLOR);
+        drawCenteredString(poseStack, this.font, new TranslatableComponent("commontrades.config.client"), this.width / 2, 34, SUBTITLE_COLOR);
         for (RenderedLabel label : this.labels) {
             drawString(poseStack, this.font, label.component(), label.x(), label.y(), LABEL_COLOR);
         }
@@ -73,21 +75,21 @@ public final class CommonTradesConfigScreen extends Screen {
             addOption(options.get(index), rowTop + index * ROW_HEIGHT);
         }
 
-        this.addRenderableWidget(new Button(centerX - 154, this.height - 28, 96, BUTTON_HEIGHT, Component.translatable("commontrades.config.save"), button -> save()));
-        this.addRenderableWidget(new Button(centerX - 48, this.height - 28, 96, BUTTON_HEIGHT, Component.translatable("commontrades.config.reload"), button -> reload()));
-        this.addRenderableWidget(new Button(centerX + 58, this.height - 28, 96, BUTTON_HEIGHT, Component.translatable("commontrades.config.done"), button -> onClose()));
+        this.addRenderableWidget(new Button(centerX - 154, this.height - 28, 96, BUTTON_HEIGHT, new TranslatableComponent("commontrades.config.save"), button -> save()));
+        this.addRenderableWidget(new Button(centerX - 48, this.height - 28, 96, BUTTON_HEIGHT, new TranslatableComponent("commontrades.config.reload"), button -> reload()));
+        this.addRenderableWidget(new Button(centerX + 58, this.height - 28, 96, BUTTON_HEIGHT, new TranslatableComponent("commontrades.config.done"), button -> onClose()));
     }
 
     private void addOption(Option option, int y) {
         int labelX = this.width / 2 - 174;
         int controlX = this.width / 2 + 40;
-        Component label = Component.translatable(option.labelKey());
+        Component label = new TranslatableComponent(option.labelKey());
         this.labels.add(new RenderedLabel(label, labelX, y + 6));
 
         if (option instanceof BooleanOption booleanOption) {
             Button button = new Button(controlX, y, CONTROL_WIDTH, BUTTON_HEIGHT, booleanValue(booleanOption.getter().getAsBoolean()), pressed -> {
                         booleanOption.setter().accept(!booleanOption.getter().getAsBoolean());
-                        this.status = Component.empty();
+                        this.status = TextComponent.EMPTY;
                         pressed.setMessage(booleanValue(booleanOption.getter().getAsBoolean()));
                     });
             this.addRenderableWidget(button);
@@ -104,7 +106,7 @@ public final class CommonTradesConfigScreen extends Screen {
                     editBox.setTextColor(valid ? LABEL_COLOR : INVALID_TEXT_COLOR);
                     if (valid) {
                         intOption.setter().accept(parsed);
-                        this.status = Component.empty();
+                        this.status = TextComponent.EMPTY;
                     }
                 } catch (NumberFormatException ignored) {
                     editBox.setTextColor(INVALID_TEXT_COLOR);
@@ -122,7 +124,7 @@ public final class CommonTradesConfigScreen extends Screen {
                 editBox.setTextColor(valid ? LABEL_COLOR : INVALID_TEXT_COLOR);
                 if (valid) {
                     textOption.setter().accept(value);
-                    this.status = Component.empty();
+                    this.status = TextComponent.EMPTY;
                 }
             });
             this.addRenderableWidget(editBox);
@@ -139,18 +141,18 @@ public final class CommonTradesConfigScreen extends Screen {
 
     private void save() {
         CommonTradesClientConfig.apply(this.draft.clientSnapshot());
-        this.status = Component.translatable("commontrades.config.saved");
+        this.status = new TranslatableComponent("commontrades.config.saved");
     }
 
     private void reload() {
         CommonTradesClientConfig.load();
         this.draft.load(CommonTradesClientConfig.snapshot());
-        this.status = Component.translatable("commontrades.config.reloaded");
+        this.status = new TranslatableComponent("commontrades.config.reloaded");
         rebuild();
     }
 
     private static Component booleanValue(boolean value) {
-        return Component.literal(value ? "On" : "Off");
+        return new TextComponent(value ? "On" : "Off");
     }
 
     private sealed interface Option permits BooleanOption, IntOption, TextOption {

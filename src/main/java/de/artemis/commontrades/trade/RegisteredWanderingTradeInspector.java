@@ -4,10 +4,10 @@ import de.artemis.commontrades.CommonTrades;
 import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.Optional;
+import java.util.Random;
 import java.util.Set;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.npc.VillagerTrades;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -91,7 +91,7 @@ public final class RegisteredWanderingTradeInspector {
 
     private static Optional<InspectedOffer> inspectGeneratedOffer(VillagerTrades.ItemListing listing, long seed) {
         try {
-            MerchantOffer offer = listing.getOffer(null, RandomSource.create(seed));
+            MerchantOffer offer = listing.getOffer(null, new Random(seed));
             if (offer == null) {
                 return Optional.empty();
             }

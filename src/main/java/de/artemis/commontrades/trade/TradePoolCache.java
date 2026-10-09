@@ -9,13 +9,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 import java.util.Set;
 import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -101,7 +101,7 @@ public final class TradePoolCache {
         return Map.copyOf(snapshot);
     }
 
-    public static List<MerchantOffer> createOffers(RandomSource random, Set<Item> usedItems, int maxOffers) {
+    public static List<MerchantOffer> createOffers(Random random, Set<Item> usedItems, int maxOffers) {
         List<MerchantOffer> offers = new ArrayList<>();
         if (maxOffers <= 0) {
             return offers;
@@ -122,7 +122,7 @@ public final class TradePoolCache {
         return offers;
     }
 
-    static Optional<SelectedTrade> createOffer(RandomSource random, Set<Item> usedItems) {
+    static Optional<SelectedTrade> createOffer(Random random, Set<Item> usedItems) {
         ensureBuilt();
         if (!CommonTradesConfig.enabled() || !hasEntries()) {
             return Optional.empty();
@@ -220,7 +220,7 @@ public final class TradePoolCache {
         return categories;
     }
 
-    private static TradeCategory pickCategory(List<TradeCategory> categories, RandomSource random) {
+    private static TradeCategory pickCategory(List<TradeCategory> categories, Random random) {
         int totalWeight = categories.stream().mapToInt(TradeCategory::selectionWeight).sum();
         int selectedWeight = random.nextInt(totalWeight);
         for (TradeCategory category : categories) {
@@ -232,7 +232,7 @@ public final class TradePoolCache {
         return categories.get(categories.size() - 1);
     }
 
-    private static Optional<SelectedTrade> makeOffer(TradeEntry entry, RandomSource random) {
+    private static Optional<SelectedTrade> makeOffer(TradeEntry entry, Random random) {
         TradeCategory category = entry.category();
         int count = category.minOutputCount();
         if (category.maxOutputCount() > category.minOutputCount()) {
