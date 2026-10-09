@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.Holder;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
@@ -30,7 +30,6 @@ public final class TradePoolCache {
     private static final int VILLAGER_XP = 1;
 
     private static Map<TradeCategory, List<TradeEntry>> entriesByCategory = emptyPools();
-    private static RegistryAccess registryAccess;
     private static boolean built;
     private static boolean dirty = true;
 
@@ -38,7 +37,6 @@ public final class TradePoolCache {
     }
 
     public static void onTagsLoaded(RegistryAccess registries) {
-        registryAccess = registries;
         markDirty();
     }
 
@@ -51,7 +49,7 @@ public final class TradePoolCache {
         Set<Identifier> itemBlacklist = CommonTradesConfig.itemBlacklist();
         Set<String> modBlacklist = CommonTradesConfig.modBlacklist();
         List<TagKey<Item>> tagBlacklist = CommonTradesConfig.tagBlacklist();
-        Set<Item> registeredWanderingTradeItems = RegisteredWanderingTradeInspector.registeredResultItems(registryAccess);
+        Set<Item> registeredWanderingTradeItems = RegisteredWanderingTradeInspector.registeredResultItems();
 
         Map<Identifier, TradeEntry> discovered = new LinkedHashMap<>();
         for (TradeCategory category : TradeCategory.values()) {

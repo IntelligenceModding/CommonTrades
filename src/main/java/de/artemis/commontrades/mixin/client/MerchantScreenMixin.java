@@ -2,7 +2,7 @@ package de.artemis.commontrades.mixin.client;
 
 import de.artemis.commontrades.client.CommonTradeClientOfferMarkers;
 import de.artemis.commontrades.config.CommonTradesClientConfig;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.MerchantScreen;
 import net.minecraft.world.inventory.MerchantMenu;
 import org.spongepowered.asm.mixin.Mixin;
@@ -23,9 +23,9 @@ abstract class MerchantScreenMixin {
     @Shadow
     private int scrollOff;
 
-    @Inject(method = "extractContents", at = @At("RETURN"))
+    @Inject(method = "renderContents", at = @At("RETURN"))
     private void commontrades$renderOfferMarkers(
-            GuiGraphicsExtractor guiGraphics,
+            GuiGraphics guiGraphics,
             int mouseX,
             int mouseY,
             float partialTick,
@@ -52,7 +52,7 @@ abstract class MerchantScreenMixin {
         }
     }
 
-    private static void renderOutline(GuiGraphicsExtractor guiGraphics, int x, int y, int color) {
-        guiGraphics.outline(x + 1, y + 1, TRADE_BUTTON_WIDTH - 2, TRADE_BUTTON_HEIGHT - 2, color);
+    private static void renderOutline(GuiGraphics guiGraphics, int x, int y, int color) {
+        guiGraphics.renderOutline(x + 1, y + 1, TRADE_BUTTON_WIDTH - 2, TRADE_BUTTON_HEIGHT - 2, color);
     }
 }

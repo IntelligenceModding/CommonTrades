@@ -13,7 +13,7 @@ public final class CommonTradesNetwork {
     }
 
     public static void registerPayloads() {
-        PayloadTypeRegistry.clientboundPlay().register(
+        PayloadTypeRegistry.playS2C().register(
                 CommonTradeOfferIndexesPayload.TYPE,
                 CommonTradeOfferIndexesPayload.STREAM_CODEC);
     }

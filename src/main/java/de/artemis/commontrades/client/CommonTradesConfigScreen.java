@@ -7,13 +7,12 @@ import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 import java.util.function.IntSupplier;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import org.jspecify.annotations.NonNull;
 
 public final class CommonTradesConfigScreen extends Screen {
     private static final int ROW_HEIGHT = 24;
@@ -42,15 +41,15 @@ public final class CommonTradesConfigScreen extends Screen {
     }
 
     @Override
-    public void extractRenderState(@NonNull GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
-        super.extractRenderState(guiGraphics, mouseX, mouseY, partialTick);
-        guiGraphics.centeredText(this.font, this.title, this.width / 2, 12, TITLE_COLOR);
-        guiGraphics.centeredText(this.font, Component.translatable("commontrades.config.client"), this.width / 2, 34, SUBTITLE_COLOR);
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        super.render(guiGraphics, mouseX, mouseY, partialTick);
+        guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, 12, TITLE_COLOR);
+        guiGraphics.drawCenteredString(this.font, Component.translatable("commontrades.config.client"), this.width / 2, 34, SUBTITLE_COLOR);
         for (RenderedLabel label : this.labels) {
-            guiGraphics.text(this.font, label.component(), label.x(), label.y(), LABEL_COLOR);
+            guiGraphics.drawString(this.font, label.component(), label.x(), label.y(), LABEL_COLOR);
         }
         if (!this.status.getString().isEmpty()) {
-            guiGraphics.centeredText(this.font, this.status, this.width / 2, this.height - 54, STATUS_COLOR);
+            guiGraphics.drawCenteredString(this.font, this.status, this.width / 2, this.height - 54, STATUS_COLOR);
         }
     }
 

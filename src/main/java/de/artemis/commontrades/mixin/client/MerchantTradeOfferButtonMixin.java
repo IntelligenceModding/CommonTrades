@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.MerchantScreen;
@@ -26,12 +26,8 @@ abstract class MerchantTradeOfferButtonMixin {
     @Final
     int index;
 
-    @Shadow
-    @Final
-    private MerchantScreen this$0;
-
-    @Inject(method = "extractToolTip", at = @At("HEAD"), cancellable = true)
-    private void commontrades$renderMarkedResultTooltip(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, CallbackInfo callbackInfo) {
+    @Inject(method = "renderToolTip", at = @At("HEAD"), cancellable = true)
+    private void commontrades$renderMarkedResultTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY, CallbackInfo callbackInfo) {
         if (!CommonTradesClientConfig.visualIndicators()) {
             return;
         }
@@ -41,13 +37,17 @@ abstract class MerchantTradeOfferButtonMixin {
             return;
         }
 
-        MerchantMenu menu = (MerchantMenu) ((AbstractContainerScreenAccessor) this.this$0).commontrades$getMenu();
-        int offerIndex = this.index + ((MerchantScreenAccessor) this.this$0).commontrades$getScrollOff();
+        Minecraft minecraft = Minecraft.getInstance();
+        if (!(minecraft.screen instanceof MerchantScreen merchantScreen)) {
+            return;
+        }
+
+        MerchantMenu menu = (MerchantMenu) ((AbstractContainerScreenAccessor) merchantScreen).commontrades$getMenu();
+        int offerIndex = this.index + ((MerchantScreenAccessor) merchantScreen).commontrades$getScrollOff();
         if (menu.getOffers().size() <= offerIndex || !CommonTradeClientOfferMarkers.isMarked(menu, offerIndex)) {
             return;
         }
 
-        Minecraft minecraft = Minecraft.getInstance();
         ItemStack result = menu.getOffers().get(offerIndex).getResult();
         List<Component> tooltip = new ArrayList<>(Screen.getTooltipFromItem(minecraft, result));
         tooltip.add(Component.translatable("commontrades.tooltip.added_by_common_trades").withStyle(ChatFormatting.GRAY));
