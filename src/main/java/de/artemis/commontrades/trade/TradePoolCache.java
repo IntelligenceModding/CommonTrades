@@ -12,11 +12,10 @@ import java.util.Optional;
 import java.util.Set;
 import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -52,9 +51,9 @@ public final class TradePoolCache {
         for (TradeCategory category : TradeCategory.values()) {
             if (CommonTradesConfig.enabled() && CommonTradesConfig.isCategoryEnabled(category)) {
                 for (TagKey<Item> sourceTag : category.sourceTags()) {
-                    for (Holder<Item> holder : BuiltInRegistries.ITEM.getTagOrEmpty(sourceTag)) {
+                    for (Holder<Item> holder : Registry.ITEM.getTagOrEmpty(sourceTag)) {
                         Item item = holder.value();
-                        ResourceLocation id = BuiltInRegistries.ITEM.getKey(item);
+                        ResourceLocation id = Registry.ITEM.getKey(item);
                         if (isEligible(holder, item, id, itemBlacklist, modBlacklist, tagBlacklist, registeredWanderingTradeItems)) {
                             discovered.putIfAbsent(id, new TradeEntry(category, item, id));
                         }
@@ -102,7 +101,7 @@ public final class TradePoolCache {
         return Map.copyOf(snapshot);
     }
 
-    public static List<MerchantOffer> createOffers(RandomSource random, Set<Item> usedItems, FeatureFlagSet enabledFeatures, int maxOffers) {
+    public static List<MerchantOffer> createOffers(RandomSource random, Set<Item> usedItems, int maxOffers) {
         List<MerchantOffer> offers = new ArrayList<>();
         if (maxOffers <= 0) {
             return offers;
@@ -111,7 +110,7 @@ public final class TradePoolCache {
         ensureBuilt();
         Set<Item> blockedItems = new HashSet<>(usedItems);
         while (offers.size() < maxOffers) {
-            Optional<SelectedTrade> trade = createOffer(random, blockedItems, enabledFeatures);
+            Optional<SelectedTrade> trade = createOffer(random, blockedItems);
             if (trade.isEmpty()) {
                 break;
             }
@@ -123,7 +122,7 @@ public final class TradePoolCache {
         return offers;
     }
 
-    static Optional<SelectedTrade> createOffer(RandomSource random, Set<Item> usedItems, FeatureFlagSet enabledFeatures) {
+    static Optional<SelectedTrade> createOffer(RandomSource random, Set<Item> usedItems) {
         ensureBuilt();
         if (!CommonTradesConfig.enabled() || !hasEntries()) {
             return Optional.empty();
@@ -147,7 +146,7 @@ public final class TradePoolCache {
                 continue;
             }
 
-            Optional<SelectedTrade> trade = makeOffer(entry, random, enabledFeatures);
+            Optional<SelectedTrade> trade = makeOffer(entry, random);
             if (trade.isPresent()) {
                 return trade;
             }
@@ -164,7 +163,7 @@ public final class TradePoolCache {
 
         while (!remaining.isEmpty()) {
             TradeEntry entry = remaining.remove(random.nextInt(remaining.size()));
-            Optional<SelectedTrade> trade = makeOffer(entry, random, enabledFeatures);
+            Optional<SelectedTrade> trade = makeOffer(entry, random);
             if (trade.isPresent()) {
                 return trade;
             }
@@ -233,7 +232,7 @@ public final class TradePoolCache {
         return categories.get(categories.size() - 1);
     }
 
-    private static Optional<SelectedTrade> makeOffer(TradeEntry entry, RandomSource random, FeatureFlagSet enabledFeatures) {
+    private static Optional<SelectedTrade> makeOffer(TradeEntry entry, RandomSource random) {
         TradeCategory category = entry.category();
         int count = category.minOutputCount();
         if (category.maxOutputCount() > category.minOutputCount()) {
@@ -241,10 +240,6 @@ public final class TradePoolCache {
         }
 
         ItemStack forSale = new ItemStack(entry.item(), count);
-        if (!forSale.isItemEnabled(enabledFeatures)) {
-            return Optional.empty();
-        }
-
         MerchantOffer offer = new MerchantOffer(
                 new ItemStack(Items.EMERALD, CommonTradesConfig.emeraldCost(category)),
                 forSale,

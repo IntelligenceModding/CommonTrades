@@ -5,7 +5,7 @@ import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.npc.VillagerTrades;
@@ -82,7 +82,7 @@ public final class RegisteredWanderingTradeInspector {
         if (result.isEmpty()) {
             return Optional.empty();
         }
-        ResourceLocation resultId = BuiltInRegistries.ITEM.getKey(result.getItem());
+        ResourceLocation resultId = Registry.ITEM.getKey(result.getItem());
         if (resultId == null) {
             return Optional.empty();
         }

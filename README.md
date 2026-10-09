@@ -17,7 +17,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Minecraft-1.20.1-3C8527?style=for-the-badge&logo=minecraft&logoColor=white" alt="Minecraft 1.20.1">
+  <img src="https://img.shields.io/badge/Minecraft-1.19.2-3C8527?style=for-the-badge&logo=minecraft&logoColor=white" alt="Minecraft 1.19.2">
   &nbsp;&nbsp;&nbsp;
   <img src="https://img.shields.io/badge/Loader-Fabric-DBD0B4?style=for-the-badge" alt="Fabric">
 </p>
@@ -42,7 +42,7 @@
 
 <p align="center">
   &bull; Automatic Wandering Trader offers for missing modded plant and crop-starter items<br>
-  &bull; Tag-based discovery using vanilla, common <code>c</code>, and Common Trades item tags<br>
+  &bull; Tag-based discovery using vanilla, common <code>c</code>, legacy Forge <code>forge</code>, and Common Trades item tags<br>
   &bull; Duplicate filtering against registered trader offers and the current trader's selected offers<br>
   &bull; Configurable offer count, category toggles, emerald prices, and blacklists<br>
   &bull; Datapack tags for pack-specific additions and exclusions<br>

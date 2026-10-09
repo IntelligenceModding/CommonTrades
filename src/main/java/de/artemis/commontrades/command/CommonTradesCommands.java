@@ -53,14 +53,14 @@ public final class CommonTradesCommands {
 
     private static int reloadConfig(CommandContext<CommandSourceStack> context) {
         CommonTradesConfig.load();
-        context.getSource().sendSuccess(() -> Component.translatable("commontrades.command.reload.success"), true);
+        context.getSource().sendSuccess(Component.translatable("commontrades.command.reload.success"), true);
         return 1;
     }
 
     private static int showTrades(CommandContext<CommandSourceStack> context, String filter, int page) {
         WanderingTradeDebugReport report = WanderingTradeDebugReport.create();
         for (String line : report.format(filter, page)) {
-            context.getSource().sendSuccess(() -> Component.literal(line), false);
+            context.getSource().sendSuccess(Component.literal(line), false);
         }
         return report.filteredEntryCount(filter);
     }

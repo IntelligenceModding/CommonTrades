@@ -89,6 +89,7 @@ public final class WanderingTradeDebugReport {
         lines.add("=== Wandering Trader Trades ===");
         lines.add("Page " + page + "/" + totalPages + " - " + entries.size() + " matching trade(s)");
         lines.add(summaryLine());
+        lines.add(generationLine());
         if (filter != null) {
             lines.add("Filter: " + filter);
         }
@@ -266,6 +267,14 @@ public final class WanderingTradeDebugReport {
         int otherTotal = count(GroupKind.OTHER_MOD);
         int commonTradesTotal = count(GroupKind.COMMON_TRADES);
         return "Vanilla (" + vanillaTotal + ") | Other mods (" + otherTotal + ") | Common Trades (" + commonTradesTotal + ")";
+    }
+
+    private static String generationLine() {
+        if (!CommonTradesConfig.enabled()) {
+            return "Generation: disabled by server config";
+        }
+        int extraTradesPerTrader = CommonTradesConfig.extraTradesPerTrader();
+        return "Generation: enabled, target " + extraTradesPerTrader + " Common Trades offer(s) per trader";
     }
 
     private int count(GroupKind kind) {

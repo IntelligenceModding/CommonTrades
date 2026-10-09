@@ -1,5 +1,6 @@
 package de.artemis.commontrades.client;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import de.artemis.commontrades.config.CommonTradesClientConfig;
 import java.util.ArrayList;
 import java.util.List;
@@ -7,10 +8,8 @@ import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 import java.util.function.IntSupplier;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
@@ -41,16 +40,16 @@ public final class CommonTradesConfigScreen extends Screen {
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        this.renderBackground(guiGraphics);
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
-        guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, 12, TITLE_COLOR);
-        guiGraphics.drawCenteredString(this.font, Component.translatable("commontrades.config.client"), this.width / 2, 34, SUBTITLE_COLOR);
+    public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTick) {
+        this.renderBackground(poseStack);
+        super.render(poseStack, mouseX, mouseY, partialTick);
+        drawCenteredString(poseStack, this.font, this.title, this.width / 2, 12, TITLE_COLOR);
+        drawCenteredString(poseStack, this.font, Component.translatable("commontrades.config.client"), this.width / 2, 34, SUBTITLE_COLOR);
         for (RenderedLabel label : this.labels) {
-            guiGraphics.drawString(this.font, label.component(), label.x(), label.y(), LABEL_COLOR);
+            drawString(poseStack, this.font, label.component(), label.x(), label.y(), LABEL_COLOR);
         }
         if (!this.status.getString().isEmpty()) {
-            guiGraphics.drawCenteredString(this.font, this.status, this.width / 2, this.height - 54, STATUS_COLOR);
+            drawCenteredString(poseStack, this.font, this.status, this.width / 2, this.height - 54, STATUS_COLOR);
         }
     }
 
@@ -74,33 +73,23 @@ public final class CommonTradesConfigScreen extends Screen {
             addOption(options.get(index), rowTop + index * ROW_HEIGHT);
         }
 
-        this.addRenderableWidget(Button.builder(Component.translatable("commontrades.config.save"), button -> save())
-                .bounds(centerX - 154, this.height - 28, 96, BUTTON_HEIGHT)
-                .build());
-        this.addRenderableWidget(Button.builder(Component.translatable("commontrades.config.reload"), button -> reload())
-                .bounds(centerX - 48, this.height - 28, 96, BUTTON_HEIGHT)
-                .build());
-        this.addRenderableWidget(Button.builder(Component.translatable("commontrades.config.done"), button -> onClose())
-                .bounds(centerX + 58, this.height - 28, 96, BUTTON_HEIGHT)
-                .build());
+        this.addRenderableWidget(new Button(centerX - 154, this.height - 28, 96, BUTTON_HEIGHT, Component.translatable("commontrades.config.save"), button -> save()));
+        this.addRenderableWidget(new Button(centerX - 48, this.height - 28, 96, BUTTON_HEIGHT, Component.translatable("commontrades.config.reload"), button -> reload()));
+        this.addRenderableWidget(new Button(centerX + 58, this.height - 28, 96, BUTTON_HEIGHT, Component.translatable("commontrades.config.done"), button -> onClose()));
     }
 
     private void addOption(Option option, int y) {
         int labelX = this.width / 2 - 174;
         int controlX = this.width / 2 + 40;
         Component label = Component.translatable(option.labelKey());
-        Component tooltip = Component.translatable(option.labelKey() + ".tooltip");
         this.labels.add(new RenderedLabel(label, labelX, y + 6));
 
         if (option instanceof BooleanOption booleanOption) {
-            Button button = Button.builder(booleanValue(booleanOption.getter().getAsBoolean()), pressed -> {
+            Button button = new Button(controlX, y, CONTROL_WIDTH, BUTTON_HEIGHT, booleanValue(booleanOption.getter().getAsBoolean()), pressed -> {
                         booleanOption.setter().accept(!booleanOption.getter().getAsBoolean());
                         this.status = Component.empty();
                         pressed.setMessage(booleanValue(booleanOption.getter().getAsBoolean()));
-                    })
-                    .bounds(controlX, y, CONTROL_WIDTH, BUTTON_HEIGHT)
-                    .tooltip(Tooltip.create(tooltip))
-                    .build();
+                    });
             this.addRenderableWidget(button);
             return;
         }
@@ -108,7 +97,6 @@ public final class CommonTradesConfigScreen extends Screen {
         if (option instanceof IntOption intOption) {
             EditBox editBox = new EditBox(this.font, controlX, y, CONTROL_WIDTH, BUTTON_HEIGHT, label);
             editBox.setValue(Integer.toString(intOption.getter().getAsInt()));
-            editBox.setTooltip(Tooltip.create(tooltip));
             editBox.setResponder(value -> {
                 try {
                     int parsed = Integer.parseInt(value);
@@ -129,7 +117,6 @@ public final class CommonTradesConfigScreen extends Screen {
         if (option instanceof TextOption textOption) {
             EditBox editBox = new EditBox(this.font, controlX, y, CONTROL_WIDTH, BUTTON_HEIGHT, label);
             editBox.setValue(textOption.getter().get());
-            editBox.setTooltip(Tooltip.create(tooltip));
             editBox.setResponder(value -> {
                 boolean valid = textOption.validator().test(value);
                 editBox.setTextColor(valid ? LABEL_COLOR : INVALID_TEXT_COLOR);

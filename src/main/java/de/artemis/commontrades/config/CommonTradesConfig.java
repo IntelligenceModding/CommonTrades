@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.core.registries.Registries;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
@@ -116,7 +116,7 @@ public final class CommonTradesConfig {
                 CommonTrades.LOGGER.warn("Ignoring malformed Common Trades tag blacklist entry '{}'", entry);
                 continue;
             }
-            blacklist.add(TagKey.create(Registries.ITEM, id));
+            blacklist.add(TagKey.create(Registry.ITEM_REGISTRY, id));
         }
         return List.copyOf(blacklist);
     }
