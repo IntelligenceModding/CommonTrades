@@ -16,9 +16,9 @@ Explain the purpose of the change rather than only listing modified files.
 <!--
 Example:
 
-- Minecraft version: 26.2
+- Minecraft version: 26.3
 - Mod loader: Fabric
-- Target branch: 26.2-fabric
+- Target branch: 26.3-fabric
 -->
 
 ## Changes
@@ -42,7 +42,7 @@ Please mention:
 Example:
 
 - `gradlew.bat build` completed successfully.
-- Tested the changes in the 26.2 Fabric development client.
+- Tested the changes in the 26.3 Fabric development client.
 - Tested Wandering Trader offer generation.
 - Tested affected tags, config values, blacklists, visual markers, networking, or debug commands where applicable.
 -->

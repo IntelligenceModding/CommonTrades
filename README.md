@@ -17,9 +17,13 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Minecraft-26.2-3C8527?style=for-the-badge&logo=minecraft&logoColor=white" alt="Minecraft 26.2">
+  <img src="https://img.shields.io/badge/Minecraft-26.3-3C8527?style=for-the-badge&logo=minecraft&logoColor=white" alt="Minecraft 26.3">
   &nbsp;&nbsp;&nbsp;
   <img src="https://img.shields.io/badge/Loader-Fabric-DBD0B4?style=for-the-badge" alt="Fabric">
+</p>
+
+<p align="center">
+  Supports Minecraft 26.3 patch releases, Fabric Loader 0.19.3 or newer, and Fabric API 0.160.5 or newer for Minecraft 26.3. Mod Menu is optional.
 </p>
 
 <p align="center">
