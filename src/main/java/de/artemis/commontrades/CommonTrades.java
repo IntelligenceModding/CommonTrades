@@ -19,7 +19,7 @@ public final class CommonTrades {
     public static final Logger LOGGER = LogUtils.getLogger();
 
     public CommonTrades(IEventBus modEventBus, ModContainer modContainer) {
-        modContainer.registerConfig(ModConfig.Type.SERVER, CommonTradesConfig.SPEC);
+        modContainer.registerConfig(ModConfig.Type.SYNCED, CommonTradesConfig.SPEC);
         modEventBus.addListener(CommonTradesNetwork::registerPayloads);
         modEventBus.addListener(TradePoolCache::onConfigLoading);
         modEventBus.addListener(TradePoolCache::onConfigReloading);

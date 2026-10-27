@@ -14,10 +14,10 @@
 
 ## Config Files
 
-The server config is registered as a NeoForge server config. In a running world it is normally written as:
+The server config is registered as a NeoForge synced config. Its default location is:
 
 ```text
-<world>/serverconfig/commontrades-server.toml
+config/commontrades-synced.toml
 ```
 
 The client config is normally written as:
@@ -26,9 +26,11 @@ The client config is normally written as:
 config/commontrades-client.toml
 ```
 
-On a dedicated server, only the server's `commontrades-server.toml` controls generated trades.
+On a dedicated server, only the server's `commontrades-synced.toml` controls generated trades. NeoForge syncs it to connected clients.
 
-In singleplayer, the loaded world's server config controls gameplay. NeoForge's config screen can edit the loaded world's server config when available.
+A world can override the global settings with `<world>/syncedconfig/commontrades-synced.toml`. This also applies to singleplayer worlds. NeoForge's config screen can edit the loaded synced config when available.
+
+When upgrading from 26.2, copy the contents of `<world>/serverconfig/commontrades-server.toml` to the new global file or world override. The configuration keys are unchanged.
 
 ## Server Config Sections
 

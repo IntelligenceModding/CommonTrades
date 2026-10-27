@@ -21,9 +21,8 @@ import net.minecraft.world.item.trading.TradeCost;
 import net.minecraft.world.item.trading.TradeSet;
 import net.minecraft.world.item.trading.TradeSets;
 import net.minecraft.world.item.trading.VillagerTrade;
-import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
-import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
-import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
+import net.minecraft.world.level.storage.loot.providers.number.ints.ConstantValue;
+import net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProvider;
 import org.jspecify.annotations.Nullable;
 
 public final class RegisteredWanderingTradeInspector {
@@ -54,7 +53,7 @@ public final class RegisteredWanderingTradeInspector {
         List<InspectedTrade> trades = new ArrayList<>();
         for (WanderingTradeSet wanderingTradeSet : WANDERING_TRADE_SETS) {
             tradeSetRegistry.get().getOptional(wanderingTradeSet.key()).ifPresent(tradeSet -> {
-                for (Holder<VillagerTrade> tradeHolder : tradeSet.getTrades()) {
+                for (Holder<VillagerTrade> tradeHolder : tradeSet.trades()) {
                     inspectTrade(wanderingTradeSet.label(), tradeHolder).ifPresent(trades::add);
                 }
             });
@@ -77,9 +76,8 @@ public final class RegisteredWanderingTradeInspector {
 
             TradeCost wants = field(trade, "wants", TradeCost.class);
             Optional<TradeCost> additionalWants = optionalField(trade, "additionalWants", TradeCost.class);
-            NumberProvider maxUses = field(trade, "maxUses", NumberProvider.class);
-            List<LootItemFunction> modifiers = listField(trade, "givenItemModifiers", LootItemFunction.class);
-            String note = modifiers.isEmpty() ? "" : "modified result";
+            ContextIntProvider maxUses = (ContextIntProvider) field(trade, "maxUses", Holder.class).value();
+            String note = field(trade, "givenItemModifier", Optional.class).isEmpty() ? "" : "modified result";
 
             return Optional.of(new InspectedTrade(
                     group,
@@ -98,21 +96,17 @@ public final class RegisteredWanderingTradeInspector {
 
     private static String emeraldCost(TradeCost wants, Optional<TradeCost> additionalWants) {
         if (wants.item().value() == Items.EMERALD) {
-            return numberProvider(wants.count());
+            return numberProvider(wants.count().value());
         }
         if (additionalWants.isPresent() && additionalWants.get().item().value() == Items.EMERALD) {
-            return numberProvider(additionalWants.get().count());
+            return numberProvider(additionalWants.get().count().value());
         }
         return "other";
     }
 
-    private static String numberProvider(NumberProvider numberProvider) {
+    private static String numberProvider(ContextIntProvider numberProvider) {
         if (numberProvider instanceof ConstantValue constantValue) {
-            float value = constantValue.value();
-            if (value == Math.round(value)) {
-                return Integer.toString(Math.round(value));
-            }
-            return Float.toString(value);
+            return Integer.toString(constantValue.value());
         }
         return "dynamic";
     }
@@ -123,15 +117,6 @@ public final class RegisteredWanderingTradeInspector {
             return Optional.empty();
         }
         return Optional.of(type.cast(value.get()));
-    }
-
-    private static <T> List<T> listField(Object target, String name, Class<T> type) throws ReflectiveOperationException {
-        List<?> values = field(target, name, List.class);
-        List<T> castValues = new ArrayList<>(values.size());
-        for (Object value : values) {
-            castValues.add(type.cast(value));
-        }
-        return List.copyOf(castValues);
     }
 
     private static <T> T field(Object target, String name, Class<T> type) throws ReflectiveOperationException {

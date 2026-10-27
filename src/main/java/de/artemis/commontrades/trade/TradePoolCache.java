@@ -57,7 +57,7 @@ public final class TradePoolCache {
     }
 
     private static void onConfigChanged(ModConfigEvent event) {
-        if (CommonTrades.MOD_ID.equals(event.getConfig().getModId()) && event.getConfig().getType() == ModConfig.Type.SERVER) {
+        if (CommonTrades.MOD_ID.equals(event.getConfig().getModId()) && event.getConfig().getType() == ModConfig.Type.SYNCED) {
             markDirty();
         }
     }
